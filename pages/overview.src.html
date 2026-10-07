@@ -116,7 +116,8 @@ ol.next{margin:0;padding-left:1.3em;display:grid;gap:6px;color:var(--ink-2)}
       <li><b>With 2–4 day reporting delays</b>, estimating today's stock roughly halves cost again.</li>
       <li><b>When supply is scarce</b> and sits mostly in Nairobi, a full optimiser beats the simple rule (1.230 vs 1.635), so the hub runs both. With fresh reports the two tie.</li>
       <li><b>Units promised twice drop to zero</b> once senders confirm each move.</li>
-      <li><b>The browser demo and the Python engine give identical results</b>, checked on 30 configurations; 35 automated tests.</li>
+      <li><b>With ABO/RhD blood groups</b> (Kenyan donor mix), coordination still cuts expired units by 56% and unmet requests by 70%. Each patient gets the oldest compatible unit, and RhD-negative units are kept for RhD-negative patients unless they would expire.</li>
+      <li><b>The browser demo and the Python engine give identical results</b>, checked on 45 configurations; 50 automated tests.</li>
     </ul>
   </section>
 
@@ -137,9 +138,9 @@ ol.next{margin:0;padding-left:1.3em;display:grid;gap:6px;color:var(--ink-2)}
     </table></div>
     <div class="two" style="gap:14px">
       <div><div class="eyebrow" style="margin-bottom:8px">Built and running</div>
-        <div class="chips2"><span>Engine</span><span>Nowcast</span><span>Sender confirmation</span><span>Human approval</span><span>Benchmark</span><span>Live demo</span></div></div>
+        <div class="chips2"><span>Engine</span><span>Nowcast</span><span>Sender confirmation</span><span>Blood-group matching</span><span>Human approval</span><span>Benchmark</span><span>Live demo</span></div></div>
       <div><div class="eyebrow" style="margin-bottom:8px">Designed, not yet built</div>
-        <div class="chips2 designed"><span>FHIR and DHIS2 interfaces</span><span>ISBT 128 scanning</span><span>Blood-group matching</span><span>Learning demand from data</span></div></div>
+        <div class="chips2 designed"><span>FHIR and DHIS2 interfaces</span><span>ISBT 128 scanning</span><span>Substitution-aware transfers</span><span>Learning demand from data</span></div></div>
     </div>
   </section>
 
@@ -152,7 +153,7 @@ ol.next{margin:0;padding-left:1.3em;display:grid;gap:6px;color:var(--ink-2)}
     <div class="card block">
       <div class="eyebrow">Next 90 days</div>
       <ol class="next">
-        <li>Add blood-group (ABO/Rh) compatibility.</li>
+        <li>Make transfers account for compatible substitutes, so rare groups such as O− are held where they are most likely to be used.</li>
         <li>Add FHIR and DHIS2 interfaces so Damu Grid plugs into ABBIS and existing bank systems.</li>
         <li>Learn each facility's demand from its own history.</li>
         <li>Pilot with one county hub and 4–6 facilities, running suggestions alongside current practice, then compare expiries and unmet requests with the previous year.</li>

@@ -4,10 +4,22 @@
     "decide": "Scenario lookahead LP",
     "decide_s": "Re-solve a 3-day, 16-scenario sample-average LP every day at the hub (about 0.1 s). Field devices run the age-aware rule, which ties the LP when data is fresh.",
     "kpis": [
-      ["−48%", "cost vs the age-aware rule with a 2-day data delay (0.340 vs 0.652)"],
-      ["1,619 → 0", "units promised twice per year at a 2-day delay, once nowcast and leases are on"],
-      ["−25%", "cost vs the rule when supply is scarce and lands in one place (1.230 vs 1.635)"],
-      ["48%", "best policy's gap to perfect foresight in the default setting (the bound is loose)"]
+      [
+        "−48%",
+        "cost vs the age-aware rule with a 2-day data delay (0.340 vs 0.652)"
+      ],
+      [
+        "1,619 → 0",
+        "units promised twice per year at a 2-day delay, once nowcast and leases are on"
+      ],
+      [
+        "−25%",
+        "cost vs the rule when supply is scarce and lands in one place (1.230 vs 1.635)"
+      ],
+      [
+        "48%",
+        "best policy's gap to perfect foresight in the default setting (the bound is loose)"
+      ]
     ]
   },
   "findings": [
@@ -16,6 +28,7 @@
     "<b>Scarcity is where optimisation pays.</b> When supply is 95% of demand and 90% of it lands in one place, the LP is clearly best (1.230 vs 1.635), and the plain age-aware rule is the weakest coordinated policy.",
     "<b>Over-tuning backfires.</b> Constants tuned on six training futures did worse on unseen futures in the default setting (+0.021 ± 0.006). Keep the rule's constants principled.",
     "<b>Leases make conflicts impossible.</b> Tested separately on 20 seeds: conflicts go to exactly zero. Without a nowcast, leases also cut cost 11–23%; with one they are cost-neutral (within ±2%).",
-    "<b>Headroom remains.</b> The best policy is 48–73% above the perfect-foresight bound. That bound is loose, so the recoverable gap is smaller; better demand forecasts are the most likely lever."
+    "<b>Headroom remains.</b> The best policy is 48–73% above the perfect-foresight bound. That bound is loose, so the recoverable gap is smaller; better demand forecasts are the most likely lever.",
+    "<b>Blood groups.</b> With the Kenyan ABO/RhD donor mix and compatible substitution, coordination cuts expired units by 56% and unmet requests by 70% (cost 2.375 → 1.017). Splitting stock into eight groups raises every policy's cost; rare-group platelets such as O− cannot be held at every small site."
   ]
 }

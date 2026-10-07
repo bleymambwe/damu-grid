@@ -252,8 +252,156 @@
     run() { while (!this.done) { this.propose(); this.commit(); } return this.tot; }
   }
 
+  // ---------------------------------------------------------------- blood groups (mirrors perishnet/groups.py)
+  const GROUPS = ['O-', 'O+', 'A-', 'A+', 'B-', 'B+', 'AB-', 'AB+'];
+  const RAW = { 'O-': 3.5, 'O+': 48.25, 'A-': 0.5, 'A+': 23.5, 'B-': 1.0, 'B+': 17.5, 'AB-': 0.0, 'AB+': 5.5 };
+  let RAW_TOTAL = 0; for (const g of GROUPS) RAW_TOTAL += RAW[g];
+  const KENYA_SHARES = GROUPS.map(g => RAW[g] / RAW_TOTAL);
+  const abo = g => ({ O: [], A: ['A'], B: ['B'], AB: ['A', 'B'] })[g.slice(0, -1)];
+  function compatible(donor, recipient) {
+    const r = abo(recipient);
+    return abo(donor).every(a => r.includes(a)) && (donor.endsWith('-') || recipient.endsWith('+'));
+  }
+  function donorOrder(recipient, shares) {
+    const subs = GROUPS.filter(g => g !== recipient && compatible(g, recipient) && g !== 'O-');
+    subs.sort((a, b) => (shares[GROUPS.indexOf(b)] - shares[GROUPS.indexOf(a)]) || (GROUPS.indexOf(a) - GROUPS.indexOf(b)));
+    const order = [recipient].concat(subs);
+    if (recipient !== 'O-') order.push('O-');
+    return order.map(g => GROUPS.indexOf(g));
+  }
+  const ISSUE_ORDER = ['O-', 'A-', 'B-', 'AB-', 'O+', 'A+', 'B+', 'AB+'].map(g => GROUPS.indexOf(g));
+  function groupParams(P, share) {
+    const lam = P.lam.map(l => l * share), sig = P.sig.map(s => s * share);
+    return Object.assign({}, P, { lam, sig, target: lam.map(l => pq(2 * l, P.beta)), delays: P.delays });
+  }
+  function splitStreams(P, st, shares) {
+    const rand = rngOf(P.seed * 104729 + 17), K = shares.length, cum = [];
+    let acc = 0; for (const s of shares) { acc += s; cum.push(acc); }
+    const split = n => { const out = new Array(K).fill(0); for (let u = 0; u < n; u++) { const x = rand(); let k = 0; while (k < K - 1 && x >= cum[k]) k++; out[k]++; } return out; };
+    const ST = [], DT = [];
+    for (let i = 0; i < P.N; i++) { ST.push(GROUPS.map(() => new Array(P.T).fill(0))); DT.push(GROUPS.map(() => new Array(P.T).fill(0))); }
+    for (let t = 0; t < P.T; t++) for (let i = 0; i < P.N; i++) {
+      const s = split(st.S[i][t]), d = split(st.D[i][t]);
+      for (let k = 0; k < K; k++) { ST[i][k][t] = s[k]; DT[i][k][t] = d[k]; }
+    }
+    return { ST, DT };
+  }
+
+  /** Step-wise network with blood groups; same propose/commit API as Sim, plus per-group detail. */
+  class GroupSim {
+    constructor(cfg, opts) {
+      opts = opts || {};
+      this.P = params(cfg);
+      this.st = opts.streams || streams(this.P);
+      this.shares = opts.shares || KENYA_SHARES;
+      this.issue = opts.issue || 'oldest';
+      this.reserveNeg = opts.reserveNeg !== false;
+      const sp = splitStreams(this.P, this.st, this.shares);
+      this.ST = sp.ST; this.DT = sp.DT;
+      this.PG = this.shares.map(s => groupParams(this.P, s));
+      this.policyName = opts.policy || 'age';
+      this.base = { none: noTransfer, count: balanceCounts, age: ageAware }[this.policyName];
+      const q = opts.q == null ? 0.85 : opts.q;
+      this.nowcasters = GROUPS.map(() => makeNowcast(this.base, q));
+      this.useNowcast = !!opts.nowcast;
+      this.lease = !!opts.lease;
+      this.orders = GROUPS.map(g => donorOrder(g, this.shares));
+      const N = this.P.N, L = this.P.L, K = GROUPS.length;
+      this.inv = []; for (let i = 0; i < N; i++) { const node = []; for (let k = 0; k < K; k++) node.push(new Array(L + 1).fill(0)); this.inv.push(node); }
+      this.transit = []; this.history = []; this.t = 0; this.pending = null; this.days = [];
+      this.tot = { waste: 0, short: 0, sup: 0, dem: 0, moved: 0, conf: 0, declined: 0, cost: 0, subs: 0 };
+      this.unmetByGroup = new Array(K).fill(0);
+    }
+    get done() { return this.t >= this.P.T; }
+    agg(typed) { return typed.map(node => { const L = this.P.L, v = new Array(L + 1).fill(0); node.forEach(g => { for (let r = 1; r <= L; r++) v[r] += g[r]; }); return v; }); }
+    propose() {
+      if (this.pending || this.done) return this.pending;
+      const P = this.P, N = P.N, L = P.L, K = GROUPS.length, t = this.t;
+      for (const [j, k, r, c] of this.transit) this.inv[j][k][r] += c;
+      this.transit = [];
+      const sup = new Array(N).fill(0);
+      for (let i = 0; i < N; i++) for (let k = 0; k < K; k++) { this.inv[i][k][L] += this.ST[i][k][t]; this.tot.sup += this.ST[i][k][t]; sup[i] += this.ST[i][k][t]; }
+      const startG = this.inv.map(node => node.map(v => v.slice()));
+      this.history.push(startG); if (this.history.length > 13) this.history.shift();
+      const h = this.history.length;
+      const obs = []; for (let i = 0; i < N; i++) obs.push(this.history[Math.max(0, h - 1 - P.delays[i])][i]);
+      const plan = [], decisions = [], viewG = obs.map(node => node.map(v => v.slice()));
+      let declined = 0;
+      for (let k = 0; k < K; k++) {
+        const ok = obs.map(node => node[k]);
+        let pk;
+        if (this.useNowcast) { pk = this.nowcasters[k](ok, this.PG[k]); for (let i = 0; i < N; i++) viewG[i][k] = this.nowcasters[k].view[i].slice(); }
+        else pk = this.base(ok, this.PG[k]);
+        if (this.lease) {
+          const g = leaseGrants(pk, this.inv.map(node => node[k]), this.PG[k]);
+          declined += g.declined;
+          g.decisions.forEach(d => decisions.push(Object.assign(d, { g: k })));
+          g.granted.forEach(e => plan.push(e.concat([k])));
+        } else {
+          pk.forEach(e => { plan.push([e[0], e[1], e[2], e[3], e[4] || 'fill', k]); decisions.push({ i: e[0], j: e[1], r: e[2], req: e[3], grant: null, reason: e[4] || 'fill', g: k }); });
+        }
+      }
+      this.tot.declined += declined;
+      this.pending = { t, sup, startG, start: this.agg(startG), obs: this.agg(obs), viewG, view: this.agg(viewG), plan, decisions, declined, delays: P.delays.slice() };
+      return this.pending;
+    }
+    commit(approve) {
+      if (!this.pending) this.propose();
+      const day = this.pending, P = this.P, N = P.N, L = P.L, K = GROUPS.length, t = this.t;
+      const done = [], exec = []; let moved = 0, conf = 0;
+      const lastPlan = GROUPS.map(() => []);
+      day.plan.forEach((e, idx) => {
+        if (approve && !approve(e, idx)) { exec.push(null); return; }
+        const [i, j, r, c, why, k] = e, ok = Math.min(c, this.inv[i][k][r]);
+        exec.push(ok); conf += c - ok;
+        lastPlan[k].push([i, j, r, ok]);
+        if (ok > 0) { this.inv[i][k][r] -= ok; this.transit.push([j, k, r, ok]); done.push([i, j, r, ok, why, k]); moved += ok; }
+      });
+      if (approve && this.useNowcast) this.nowcasters.forEach((f, k) => { if (f.plans.length) f.plans[f.plans.length - 1] = lastPlan[k]; });
+      this.tot.conf += conf; this.tot.moved += moved;
+      const dem = new Array(N).fill(0), unmet = new Array(N).fill(0), waste = new Array(N).fill(0), subs = [];
+      let sh = 0, nsubs = 0;
+      for (let i = 0; i < N; i++) {
+        for (const k of ISSUE_ORDER) {
+          let d = this.DT[i][k][t]; dem[i] += d; this.tot.dem += d;
+          let pairs = [];
+          for (const donor of this.orders[k]) {
+            const last = (this.reserveNeg && GROUPS[donor].endsWith('-') && GROUPS[k].endsWith('+')) ? 1 : L;
+            for (let r = 1; r <= last; r++) pairs.push([donor, r]);
+          }
+          if (this.issue === 'oldest') pairs = pairs.map((p, n) => [p[0], p[1], n]).sort((a, b) => (a[1] - b[1]) || (a[2] - b[2]));
+          for (const [donor, r] of pairs) {
+            if (d <= 0) break;
+            const take = Math.min(d, this.inv[i][donor][r]);
+            this.inv[i][donor][r] -= take; d -= take;
+            if (donor !== k && take > 0) { nsubs += take; subs.push([i, k, donor, take]); }
+          }
+          unmet[i] += d; sh += d; this.unmetByGroup[k] += d;
+        }
+      }
+      this.tot.short += sh; this.tot.subs += nsubs;
+      let wt = 0;
+      for (let i = 0; i < N; i++) for (let k = 0; k < K; k++) {
+        wt += this.inv[i][k][1]; waste[i] += this.inv[i][k][1];
+        for (let r = 1; r < L; r++) this.inv[i][k][r] = this.inv[i][k][r + 1];
+        this.inv[i][k][L] = 0;
+      }
+      this.transit = this.transit.filter(tr => { tr[2] -= 1; if (tr[2] <= 0) { wt += tr[3]; waste[tr[0]] += tr[3]; return false; } return true; });
+      this.tot.waste += wt;
+      const cost = P.h * wt + P.p * sh + P.c * moved;
+      this.tot.cost += cost;
+      const endG = this.inv.map(node => node.map(v => v.slice()));
+      const rec = Object.assign({}, day, { done, exec, moved, conf, dem, unmet, waste, wt, sh, cost, cum: this.tot.cost, subs, endG, end: this.agg(endG) });
+      this.days.push(rec);
+      this.pending = null; this.t++;
+      return rec;
+    }
+    run() { while (!this.done) { this.propose(); this.commit(); } return this.tot; }
+  }
+
   const api = { rngOf, pois, pq, params, streams, atRisk, spare, fill, noTransfer, balanceCounts, ageAware,
-    nowcastUniform, nowcastPerNode, makeNowcast, leaseGrants, Sim, BASE };
+    nowcastUniform, nowcastPerNode, makeNowcast, leaseGrants, Sim, BASE,
+    GROUPS, KENYA_SHARES, compatible, donorOrder, GroupSim };
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
   else root.DamuEngine = api;
 })(typeof self !== 'undefined' ? self : this);

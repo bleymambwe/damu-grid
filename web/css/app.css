@@ -94,3 +94,16 @@
 .dock{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;background:var(--card-solid);border:1px solid var(--line);border-radius:14px;padding:6px 10px 6px 6px;box-shadow:var(--shadow)}
 .vsep{width:1px;height:24px;background:var(--line)}
 @media (max-width:760px){.daybadge{display:none}}
+
+/* blood groups */
+.item .t .route{display:flex;align-items:center;gap:6px;color:var(--ink)}
+.grp{font-style:normal;font:700 .72rem var(--f);background:var(--soft);color:var(--navy);border-radius:6px;padding:1px 6px}
+.grp.neg{background:var(--gold-soft);color:#8a6414}
+.ggrid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px}
+.gc{background:var(--soft);border-radius:10px;padding:7px 8px;display:grid}
+.gc b{font-size:.8rem;color:var(--navy)}
+.gc span{font:700 1.05rem var(--f);color:var(--ink);font-variant-numeric:tabular-nums}
+.gc small{font-size:.66rem;color:var(--muted)}
+.gc.neg{background:var(--gold-soft)}
+.gc.low span{color:var(--red)}
+.gc.zero{opacity:.6}

@@ -1,0 +1,18 @@
+Blood groups: Kenyan donor ABO/RhD mix, 6 facilities, platelets (5-day shelf life), 365 days, 20 seeds
+Issue rule: oldest compatible unit first; RhD-negative units to RhD-positive patients only on their last day
+
+fresh data
+  no coordination            cost/demand 2.375   expired   2706   unmet   2200   O- unmet 128.1   substitutions   533   conflicts      0
+  age-aware rule             cost/demand 1.019   expired   1182   unmet    666   O- unmet 119.5   substitutions   838   conflicts      0
+  rule + nowcast + leases    cost/demand 1.017   expired   1190   unmet    675   O- unmet 119.6   substitutions   829   conflicts      0
+
+2-day delay
+  no coordination            cost/demand 2.375   expired   2706   unmet   2200   O- unmet 128.1   substitutions   533   conflicts      0
+  age-aware rule             cost/demand 1.163   expired   1407   unmet    893   O- unmet 125.3   substitutions   917   conflicts   3977
+  rule + nowcast + leases    cost/demand 1.121   expired   1317   unmet    807   O- unmet 125.6   substitutions   843   conflicts      0
+
+Siaya and Lodwar offline
+  no coordination            cost/demand 2.375   expired   2706   unmet   2200   O- unmet 128.1   substitutions   533   conflicts      0
+  age-aware rule             cost/demand 1.022   expired   1221   unmet    701   O- unmet 120.6   substitutions   846   conflicts    986
+  rule + nowcast + leases    cost/demand 1.004   expired   1186   unmet    668   O- unmet 120.6   substitutions   820   conflicts      0
+

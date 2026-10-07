@@ -50,12 +50,15 @@
   let MAP = null, sim, shadow, storyIdx = 0, cur = null, phase = 1, mode = reduce ? 'pause' : 'play', speed = 1, last = 0;
   let awaiting = false, decisions = [], selected = 4, ledger = [], facTot = [];
   const auto = () => $('auto').checked;
+  const groupsOn = () => $('l-groups').checked;
+  const G = E.GROUPS;
   const sumv = v => v.reduce((a, b) => a + b, 0) - v[0];
 
   function build(cfgOver, nowcast, lease) {
     const cfg = Object.assign({}, BASE_CFG, cfgOver);
-    sim = new E.Sim(cfg, { policy: 'age', nowcast, lease, q: 0.85 });
-    shadow = new E.Sim(cfg, { policy: 'none', streams: sim.st });
+    const Engine = groupsOn() ? E.GroupSim : E.Sim;
+    sim = new Engine(cfg, { policy: 'age', nowcast, lease, q: 0.85 });
+    shadow = new Engine(cfg, { policy: 'none', streams: sim.st });
     ledger = []; facTot = FAC.map(() => ({ x: 0, u: 0 }));
     awaiting = false; $('await').hidden = true;
     for (let k = 0; k < WARM; k++) { sim.propose(); shadow.propose(); shadow.commit(); afterDay(sim.commit()); }
@@ -87,7 +90,12 @@
   }
   function finishDay() {
     const manual = awaiting;
+    const before = sim.unmetByGroup ? sim.unmetByGroup.slice() : null;
     const rec = sim.commit(manual ? (e, idx) => decisions[idx] : null);
+    if (before) {
+      const n = G.reduce((acc, g, k) => acc + (g.endsWith('-') ? sim.unmetByGroup[k] - before[k] : 0), 0);
+      sim.lastNegUnmet = n > 0 ? { n, t: rec.t } : null;
+    }
     awaiting = false; $('await').hidden = true;
     cur = rec; phase = manual ? 0.15 : 0;
     afterDay(rec);
@@ -95,7 +103,13 @@
   }
   function afterDay(rec) {
     const t = rec.t, items = [];
-    rec.done.forEach(([i, j, r, k, why]) => items.push(['t', `${FAC[i].name} → ${FAC[j].name}: ${k} unit${k > 1 ? 's' : ''}, ${r} day${r > 1 ? 's' : ''} left (${why === 'rescue' ? 'expiry rescue' : 'top-up'})`]));
+    rec.done.forEach(([i, j, r, k, why, g]) => items.push(['t', `${FAC[i].name} → ${FAC[j].name}: ${k}${g != null ? ' ' + G[g] : ''} unit${k > 1 ? 's' : ''}, ${r} day${r > 1 ? 's' : ''} left (${why === 'rescue' ? 'expiry rescue' : 'top-up'})`]));
+    if (rec.subs) {
+      const agg = {};
+      rec.subs.forEach(([i, k, d, n]) => { const key = i + ':' + k + ':' + d; agg[key] = (agg[key] || 0) + n; });
+      Object.entries(agg).forEach(([key, n]) => { const [i, k, d] = key.split(':').map(Number);
+        items.push(['', `${FAC[i].name}: ${n} ${G[k]} request${n > 1 ? 's' : ''} served with compatible ${G[d]}`]); });
+    }
     rec.waste.forEach((w, i) => { if (w) { facTot[i].x += w; items.push(['x', `${FAC[i].name}: ${w} unit${w > 1 ? 's' : ''} expired`]); } });
     rec.unmet.forEach((u, i) => { if (u) { facTot[i].u += u; items.push(['u', `${FAC[i].name}: ${u} request${u > 1 ? 's' : ''} unmet`]); } });
     if (rec.declined) items.push(['', `Senders declined ${rec.declined} requested unit${rec.declined > 1 ? 's' : ''} (needed locally)`]);
@@ -110,8 +124,9 @@
   function status(rec, i) {
     const P = sim.P, v = stockOf(rec, i), tot = sumv(v), risk = E.atRisk(v, P.lam[i], P.L);
     if (risk.slice(2).some(x => x > 0)) return 'exp';
-    if (tot >= P.target[i]) return 'ok';
-    if (tot >= P.target[i] / 2) return 'low';
+    const tgt = sim.PG ? sim.PG.reduce((acc, Q) => acc + Q.target[i], 0) : P.target[i];
+    if (tot >= tgt) return 'ok';
+    if (tot >= tgt / 2) return 'low';
     return 'crit';
   }
 
@@ -277,10 +292,11 @@
 
   // ---------------------------------------------------------------- panels
   function reasonText(d) {
-    const P = sim.P, a = FAC[d.i].name, b = FAC[d.j].name;
+    const P = d.g != null ? sim.PG[d.g] : sim.P, a = FAC[d.i].name, b = FAC[d.j].name, grp = d.g != null ? G[d.g] + ' ' : '';
+    const rate = Math.round(P.lam[d.i] * 100) / 100;
     return d.reason === 'rescue'
-      ? `${a} uses about ${P.lam[d.i]} units a day, so these would expire on its shelf. ${b} can use them in time.`
-      : `${b} is below its two-day safety level of ${P.target[d.j]} units. ${a} holds more than it needs.`;
+      ? `${a} uses about ${rate} ${grp}units a day, so these would expire on its shelf. ${b} can use them in time.`
+      : `${b} is below its two-day ${grp}safety level of ${P.target[d.j]} unit${P.target[d.j] === 1 ? '' : 's'}. ${a} holds more than it needs.`;
   }
   function renderSuggestions(rec) {
     const list = $('sugg'), ds = rec.decisions || [];
@@ -305,7 +321,7 @@
       const act = rec.pending && inPlan
         ? `<div class="act"><button class="btn small" data-a="${idx}">${decisions[idx] ? 'Approved' : 'Approve'}</button><button class="btn small no" data-r="${idx}">${decisions[idx] ? 'Reject' : 'Rejected'}</button></div>` : '';
       return `<li class="item"><span class="badge ${d.reason}">${FAC[d.i].code}</span><div>
-        <div class="t">${FAC[d.i].name} → ${FAC[d.j].name}<span>${units} unit${units === 1 ? '' : 's'}</span></div>
+        <div class="t"><span class="route">${FAC[d.i].name} → ${FAC[d.j].name}${d.g != null ? ` <em class="grp${G[d.g].endsWith('-') ? ' neg' : ''}">${G[d.g]}</em>` : ''}</span><span>${units} unit${units === 1 ? '' : 's'}</span></div>
         <div class="bar"><i class="${d.reason}" style="width:${100 * units / mx}%"></i></div>
         <p>${reasonText(d)}</p>
         <div class="meta">${d.reason === 'rescue' ? 'Expiry rescue' : 'Top-up'} · ${d.r} day${d.r > 1 ? 's' : ''} of shelf life left · ${lease}${status}</div>${act}</div></li>`;
@@ -329,13 +345,14 @@
       <span>Units expired</span><span class="v us">${a.waste}</span><span class="v them">${b.waste}</span>
       <span>Requests unmet</span><span class="v us">${a.short}</span><span class="v them">${b.short}</span>
       <span>Units moved</span><span class="v us">${a.moved}</span><span class="v them">0</span>
-      <span>Conflicts</span><span class="v us" style="${a.conf ? 'color:var(--red)' : ''}">${a.conf}</span><span class="v them">0</span>`;
+      <span>Conflicts</span><span class="v us" style="${a.conf ? 'color:var(--red)' : ''}">${a.conf}</span><span class="v them">0</span>`
+      + (a.subs != null ? `<span>Compatible substitutes</span><span class="v us">${a.subs}</span><span class="v them">${b.subs}</span>` : '');
     drawSpark();
   }
   function renderHead() {
     const s = saved();
     $('headline').textContent = s >= 0 ? `Coordination has saved ${s} platelet units in ${sim.t} days.` : `Coordination is ${-s} units behind after ${sim.t} days.`;
-    $('subline').textContent = `6 facilities · platelets, 5-day shelf life · ${STORIES[storyIdx].title} · day ${sim.t} of ${sim.P.T}`;
+    $('subline').textContent = `6 facilities · platelets, 5-day shelf life · ${groupsOn() ? 'ABO/RhD matching on · ' : ''}${STORIES[storyIdx].title} · day ${sim.t} of ${sim.P.T}`;
     const counts = { ok: 0, low: 0, crit: 0, exp: 0 };
     FAC.forEach((f, i) => counts[status(cur, i)]++);
     const late = cur.delays.filter(d => d > 0).length;
@@ -346,7 +363,12 @@
     const rec = cur, late = FAC.map((f, i) => [f.name, rec.delays[i], i]).filter(x => x[1] > 0);
     let title, sub, act, fn;
     const rescue = (rec.pending ? rec.plan : rec.done).filter(e => e[4] === 'rescue');
-    if (rec.conf > 0) {
+    const negUnmet = (!rec.pending && sim.lastNegUnmet && sim.lastNegUnmet.t === rec.t) ? sim.lastNegUnmet : null;
+    if (negUnmet) {
+      title = `${negUnmet.n} RhD-negative request${negUnmet.n > 1 ? 's' : ''} unmet today.`;
+      sub = 'About 5% of Kenyan donors are RhD-negative. The engine keeps these units for RhD-negative patients unless they would expire.';
+      act = 'Open ledger'; fn = () => showTab('log');
+    } else if (rec.conf > 0) {
       title = `${rec.conf} requested unit${rec.conf > 1 ? 's were' : ' was'} no longer on the shelf today.`;
       sub = 'The hub planned on stale counts. Nowcast and quota leases prevent this.';
       act = 'Turn protections on'; fn = () => { $('l-now').checked = true; $('l-lease').checked = true; sim.useNowcast = true; sim.lease = true; renderBanner(); };
@@ -383,12 +405,22 @@
     }
     $('pane-fac').innerHTML = `<div class="fac"><h3>${f.name}</h3><p class="subt">${f.role}</p>
       <div class="eyebrow" style="margin-bottom:6px">Data link</div>
-      <div class="seg" role="group" aria-label="Data link for ${f.name}">${[0, 1, 2, 4].map(v => `<button data-d="${v}" aria-pressed="${d === v}">${v ? v + ' days late' : 'Live'}</button>`).join('')}</div>
-      <div class="stats"><div><b>${P.lam[i]}</b><span>units/day demand</span></div><div><b>${P.target[i]}</b><span>two-day safety level</span></div><div><b>${d ? d + ' d' : 'live'}</b><span>age of hub’s data</span></div></div>
+      <div class="seg" role="group" aria-label="Data link for ${f.name}">${[0, 1, 2, 4].map(v => `<button data-d="${v}" aria-pressed="${d === v}">${v ? v + (v > 1 ? ' days' : ' day') + ' late' : 'Live'}</button>`).join('')}</div>
+      <div class="stats"><div><b>${P.lam[i]}</b><span>units/day demand</span></div><div><b>${sim.PG ? sim.PG.reduce((acc, Q) => acc + Q.target[i], 0) : P.target[i]}</b><span>two-day safety level${sim.PG ? ' (all groups)' : ''}</span></div><div><b>${d ? d + ' d' : 'live'}</b><span>age of hub’s data</span></div></div>
       <div class="eyebrow">Stock by shelf life left</div>
       <div class="bars">${bars}</div>
+      ${rec.startG ? groupGrid(i, rec) : ''}
       <div class="keyline"><span>solid = actual shelf</span>${view ? `<span>striped = what the hub ${sim.useNowcast ? 'estimates' : 'sees'}</span>` : ''}</div>
       <div class="stats"><div><b>${rec.dem ? rec.dem[i] : '–'}</b><span>requests today</span></div><div><b style="color:var(--red)">${facTot[i].u}</b><span>unmet so far</span></div><div><b style="color:#a9781a">${facTot[i].x}</b><span>expired so far</span></div></div></div>`;
+  }
+  function groupGrid(i, rec) {
+    const tg = rec.pending ? rec.startG[i] : rec.endG[i];
+    const cells = G.map((g, k) => { const n = tg[k].reduce((a, b) => a + b, 0) - tg[k][0];
+      const tgt = sim.PG[k].target[i];
+      const cls = 'gc' + (g.endsWith('-') ? ' neg' : '') + (n === 0 ? ' zero' : '') + (n < tgt ? ' low' : '');
+      return `<div class="${cls}"><b>${g}</b><span>${n}</span><small>${tgt ? 'safety ' + tgt : 'no stock kept'}</small></div>`; }).join('');
+    return `<div class="eyebrow" style="margin-top:14px">Stock by blood group</div><div class="ggrid">${cells}</div>
+      <p class="hint" style="margin-top:6px">Requests use the same group first, then a compatible one, oldest unit first. RhD-negative units go to RhD-positive patients only on their last day.</p>`;
   }
   $('pane-fac').addEventListener('click', e => {
     const b = e.target.closest('[data-d]'); if (!b) return;
@@ -431,6 +463,7 @@
   $('l-now').addEventListener('change', e => { sim.useNowcast = e.target.checked; renderBanner(); });
   $('l-lease').addEventListener('change', e => { sim.lease = e.target.checked; renderBanner(); });
   $('auto').addEventListener('change', () => { if (auto() && awaiting) finishDay(); });
+  $('l-groups').addEventListener('change', () => setStory(storyIdx));
   document.addEventListener('keydown', e => {
     if (e.target.closest('input,select,textarea,button')) return;
     if (e.code === 'Space') { e.preventDefault(); $('play').click(); }
