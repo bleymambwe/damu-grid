@@ -7,82 +7,92 @@
 <meta name="description" content="Damu Grid: offline-first platelet stock coordination for African blood services. Live demo with synthetic data, built for the Terumo BCT Africa Hackathon 2026.">
 <meta property="og:title" content="Damu Grid · Platelet network control room">
 <meta property="og:description" content="Nowcast, age-aware transfers and quota leases, running live on a synthetic Kenyan platelet network.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3c5 7 9 12 9 17a9 9 0 0 1-18 0c0-5 4-10 9-17z' fill='%23e5484d'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%2312306b'/%3E%3Cpath d='M16 7c3.4 4.6 6 8 6 11.2a6 6 0 0 1-12 0C10 15 12.6 11.6 16 7z' fill='%23fff'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
 <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
-<header class="top">
-  <a class="brand" href="./" aria-label="Damu Grid home">
-    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 3c5 7 9 12 9 17a9 9 0 0 1-18 0c0-5 4-10 9-17z"/></svg>
-    <span><b>Damu Grid</b><small>Platelet network control room</small></span>
+<nav class="rail" aria-label="Damu Grid">
+  <a class="mark" href="./" aria-label="Damu Grid home">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 7c3.4 4.6 6 8 6 11.2a6 6 0 0 1-12 0C10 15 12.6 11.6 16 7z"/></svg>
   </a>
-  <nav class="links" aria-label="Pages">
-    <a href="./" aria-current="page">Live demo</a>
-    <a href="method.html">How it works</a>
-    <a href="evidence.html">Evidence</a>
-    <a href="https://github.com/bleymambwe/damu-grid" target="_blank" rel="noopener">Code</a>
-  </nav>
-  <span class="synthetic" title="All facilities' stock, demand and supply are simulated. No real patient or donor data.">Synthetic data</span>
-</header>
+  <span class="sep" aria-hidden="true"></span>
+  <a class="ico on" href="./" aria-current="page" title="Live network map" aria-label="Live network map">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="7" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="12" cy="17" r="2.4"/><path d="M8 7.6l8-1M7 9l4 6M17 8l-4 7" fill="none" stroke-width="1.8"/></svg></a>
+  <a class="ico" href="method.html" title="How it works" aria-label="How it works">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h9l5 5v11H5z" fill="none" stroke-width="1.8"/><path d="M8 12h8M8 16h6" fill="none" stroke-width="1.8"/></svg></a>
+  <a class="ico" href="evidence.html" title="Evidence" aria-label="Evidence">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V5M15 20v-7M20 20V8" fill="none" stroke-width="2.2" stroke-linecap="round"/></svg></a>
+  <a class="ico" href="https://github.com/bleymambwe/damu-grid" target="_blank" rel="noopener" title="Code on GitHub" aria-label="Code on GitHub">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8l-4 4 4 4M15 8l4 4-4 4" fill="none" stroke-width="2" stroke-linecap="round"/></svg></a>
+</nav>
 
-<section class="story" aria-label="Guided scenarios">
-  <div class="chips" role="tablist" id="story"></div>
-  <p class="storyline" id="storyline"></p>
-</section>
-
-<main class="room">
-  <section class="mapwrap" aria-label="Network map">
-    <canvas id="map" aria-label="Map of Kenya showing platelet stock at six facilities and transfers between them"></canvas>
-    <div class="daybadge"><span class="lbl">Day</span><b id="dayno">0</b><span id="phase" class="lbl"></span></div>
-    <div class="legend" aria-hidden="true">
-      <span><i class="ring-life"></i>Ring = stock by days of shelf life left, <em>expiring</em> → <em>fresh</em></span>
-      <span><i class="arc"></i>Transfer (dots are units in transit)</span>
-      <span><i class="stale"></i>Dashed halo = facility data is days old</span>
-      <span><i class="unmet"></i>Unmet request</span>
-      <span><i class="exp">✕</i>Expired</span>
-    </div>
-    <div class="await" id="await" hidden>
-      <p><b id="await-n">0</b> transfer suggestions are waiting for a decision.</p>
-      <button class="btn" id="apply">Apply decisions</button>
-    </div>
-  </section>
-
-  <aside class="panel" aria-label="Control panel">
-    <div class="tabs" role="tablist">
-      <button role="tab" id="tab-sugg" aria-selected="true" aria-controls="pane-sugg">Suggestions <span class="count" id="sugg-count">0</span></button>
-      <button role="tab" id="tab-fac" aria-selected="false" aria-controls="pane-fac">Facility</button>
-      <button role="tab" id="tab-log" aria-selected="false" aria-controls="pane-log">Ledger</button>
-    </div>
-    <div class="pane" id="pane-sugg" role="tabpanel" aria-labelledby="tab-sugg">
-      <div class="panehead">
-        <p class="hint">The engine suggests. People decide.</p>
-        <label class="switch"><input type="checkbox" id="auto" checked><span>Auto-approve</span></label>
-      </div>
-      <ol class="sugg" id="sugg"></ol>
-    </div>
-    <div class="pane" id="pane-fac" role="tabpanel" aria-labelledby="tab-fac" hidden></div>
-    <div class="pane" id="pane-log" role="tabpanel" aria-labelledby="tab-log" hidden><ol class="ledger" id="ledger"></ol></div>
-  </aside>
-</main>
-
-<footer class="dock">
-  <div class="transport">
+<div class="page">
+  <header class="head">
+    <div class="eyebrow">Platelet network · Western Kenya <span class="pill-demo"><i></i>Synthetic data</span></div>
+    <h1 id="headline">Coordination is moving platelets before they expire.</h1>
+    <p class="sub" id="subline"></p>
+    <div class="controls">
+      <div class="chips" id="story" role="tablist" aria-label="Guided scenarios"></div>
+      <div class="dock" role="group" aria-label="Playback and engine layers">
     <button class="btn" id="play">Pause</button>
     <button class="btn ghost" id="step" title="Next day (→)">Next day</button>
-    <label class="sel"><span class="lbl">Speed</span>
-      <select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select></label>
+    <select id="speed" aria-label="Speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select>
     <button class="btn ghost" id="reset">Restart</button>
+    <span class="vsep" aria-hidden="true"></span>
+    <label class="switch"><input type="checkbox" id="l-now" checked><span>Nowcast</span></label>
+    <label class="switch"><input type="checkbox" id="l-lease" checked><span>Quota leases</span></label>
   </div>
-  <div class="layers" role="group" aria-label="Engine layers">
-    <label class="switch"><input type="checkbox" id="l-now" checked><span>Nowcast <small>estimate stale facilities</small></span></label>
-    <label class="switch"><input type="checkbox" id="l-lease" checked><span>Quota leases <small>sender confirms every unit</small></span></label>
-  </div>
-  <div class="compare" id="compare"></div>
-  <canvas id="spark" width="260" height="64" aria-label="Cumulative cost: Damu Grid versus no coordination"></canvas>
-</footer>
+    </div>
+  </header>
+
+  <main class="grid">
+    <section class="card mapcard" aria-label="Network map">
+      <div class="maplegend">
+        <div class="eyebrow">Network today</div>
+        <ul class="legend" id="legend"></ul>
+        <p class="story" id="storyline"></p>
+        <p class="hint">Ring = stock by days of shelf life left (<span class="g">gold</span> expiring, <span class="n">navy</span> fresh). Dashed halo = facility data is late. Click a facility for detail. Space plays or pauses.</p>
+      </div>
+      <canvas id="map" aria-label="Dot map of western Kenya showing platelet stock at six facilities and transfers between them"></canvas>
+      <div class="daybadge"><span class="eyebrow">Day</span><b id="dayno">0</b></div>
+      <div class="await" id="await" hidden>
+        <p><b id="await-n">0</b> suggestions are waiting for your decision.</p>
+        <button class="btn" id="apply">Apply decisions</button>
+      </div>
+    </section>
+
+    <aside class="card side" aria-label="Results and suggestions">
+      <div class="sidehead">
+        <div class="eyebrow">Saved vs no coordination</div>
+        <div class="big"><b id="saved">0</b><span id="saved-sub">platelet units</span></div>
+        <div class="compare" id="compare"></div>
+        <canvas id="spark" width="300" height="54" aria-label="Cumulative cost, Damu Grid versus no coordination"></canvas>
+      </div>
+      <div class="tabs" role="tablist">
+        <button role="tab" id="tab-sugg" aria-selected="true" aria-controls="pane-sugg">Suggestions <span class="count" id="sugg-count">0</span></button>
+        <button role="tab" id="tab-fac" aria-selected="false" aria-controls="pane-fac">Facility</button>
+        <button role="tab" id="tab-log" aria-selected="false" aria-controls="pane-log">Ledger</button>
+      </div>
+      <div class="pane" id="pane-sugg" role="tabpanel" aria-labelledby="tab-sugg">
+        <div class="panehead"><p class="hint">The engine suggests. People decide.</p>
+          <label class="switch"><input type="checkbox" id="auto" checked><span>Auto-approve</span></label></div>
+        <ol class="sugg" id="sugg"></ol>
+      </div>
+      <div class="pane" id="pane-fac" role="tabpanel" aria-labelledby="tab-fac" hidden></div>
+      <div class="pane" id="pane-log" role="tabpanel" aria-labelledby="tab-log" hidden><ol class="ledger" id="ledger"></ol></div>
+    </aside>
+
+    <section class="banner" id="banner" aria-live="polite">
+      <span class="bico" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke-width="2"/><path d="M16 16l4.5 4.5" stroke-width="2" stroke-linecap="round"/></svg></span>
+      <div><b id="b-title"></b><span id="b-sub"></span></div>
+      <button class="btn light" id="b-act"></button>
+    </section>
+  </main>
+
+</div>
 
 <script src="js/engine.js"></script>
 <script src="js/app.js"></script>
