@@ -23,7 +23,7 @@
     { title: 'Same outage, protected', cfg: { delay: [0, 0, 0, 0, 4, 3] }, nowcast: true, lease: true,
       text: 'Same outage. The nowcast estimates today’s stock from the last report, and every sender confirms units against its live shelf. Conflicts stay at zero.' },
     { title: 'Scarce supply', cfg: { rho: 0.95, m: 0.9, p: 10, delay: [0, 1, 1, 1, 2, 2] }, nowcast: true, lease: true,
-      text: 'Supply falls to 95% of demand and 90% of it is collected in Nairobi; links are slow. The engine decides where scarce stock does most good.' },
+      text: 'Supply falls to 95% of demand and 90% of it is collected in Nairobi, and some links are slow. The engine decides where scarce stock does most good.' },
   ];
   const WARM = 14, DAY_MS = 1700;
   const CATS = [
@@ -324,7 +324,7 @@
   function renderSide() {
     const a = sim.tot, b = shadow.tot, s = saved();
     $('saved').textContent = s;
-    $('saved-sub').textContent = `platelet units over ${sim.t} days`;
+    $('saved-sub').textContent = `fewer expired units and unmet requests than with no coordination, over ${sim.t} days`;
     $('compare').innerHTML = `<span></span><span class="h">Damu Grid</span><span class="h">None</span>
       <span>Units expired</span><span class="v us">${a.waste}</span><span class="v them">${b.waste}</span>
       <span>Requests unmet</span><span class="v us">${a.short}</span><span class="v them">${b.short}</span>

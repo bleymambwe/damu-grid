@@ -6,3 +6,7 @@ __pycache__/
 .firebase/
 engine/outputs/benchmark/
 engine/outputs/bench_quick/
+
+# Private presentation prep and working notes (kept local; repo is public)
+docs/PITCH.md
+docs/notes/

@@ -1,0 +1,58 @@
+/* Damu Grid secondary pages (How it works, Evidence): maps each page's components onto tokens.css.
+   Loaded after the page's own styles, so equal-specificity rules here win. */
+.dg-main{min-width:0}
+.wrap{max-width:1180px;padding-inline:clamp(16px,2.6vw,32px);padding-block:22px 64px}
+.top{padding-block:0 6px}
+
+/* type */
+h1{font:700 clamp(1.5rem,2.6vw,2rem)/1.2 var(--f);letter-spacing:-.02em;color:var(--navy)}
+h2{font:700 clamp(1.2rem,2vw,1.4rem)/1.25 var(--f);letter-spacing:-.01em;color:var(--navy)}
+h3{font-family:var(--f);color:var(--ink);font-weight:700}
+.lbl{font:600 12px var(--f);letter-spacing:.16em;text-transform:uppercase;color:var(--eyebrow)}
+.lede{color:var(--ink-2)}
+.note{color:var(--muted)}
+.kpi{border-left:3px solid var(--gold);padding-left:12px}
+.kpi b{font:700 1.6rem/1.15 var(--f);color:var(--navy);font-variant-numeric:tabular-nums}
+.num,.counters,td.n,th.n,.ctrl label output,table.zt td{font-variant-numeric:tabular-nums}
+
+/* sections and surfaces */
+section{border-top:0;padding-block:22px}
+.stage,.step,.card,.verdict,.field,.classes>div,.decomp>div,.def,.lab,.panel,details.formal,.tablewrap,.gallery figure{
+  background:var(--card);border:1px solid var(--card-line);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(6px)}
+.stage,.step,.verdict,.lab{padding:18px}
+.verdict{border:1px solid var(--card-line)}
+.verdict .big{font:600 clamp(1.1rem,2.1vw,1.35rem)/1.45 var(--f);color:var(--ink)}
+.pipeline>div{background:var(--soft);border-radius:12px}
+.pipeline b,.classes b{font:700 1.05rem var(--f);color:var(--navy)}
+.pipeline .arrow{color:var(--gold)}
+.gallery figure{padding:10px}
+.gallery figcaption{color:var(--ink-2)}
+.twin canvas,.heat canvas{border-radius:12px;background:var(--bg1)}
+
+/* maths */
+.eq{background:#eef3fb;border-radius:12px;color:var(--ink)}
+.readout{background:var(--soft);border-radius:10px}
+.step .k{font:600 12px var(--f);letter-spacing:.16em;color:var(--gold-ink)}
+
+/* tables */
+.tablewrap{overflow-x:auto}
+th,table.res th,table.zt th{font:600 10.5px var(--f);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+th,td{border-bottom-color:var(--line)}
+tr.best td,table.res tr.best td{background:#eef3fb}
+
+/* charts */
+.chart text,.viz svg text{font-family:var(--f);fill:var(--muted)}
+.chart text.lab{font-family:var(--f);fill:var(--ink)}
+
+/* controls */
+.btn{border-radius:10px;font:600 .86rem var(--f)}
+.btn.ghost{background:var(--card-solid);color:var(--navy);border:1px solid var(--line)}
+.tab{font:500 .86rem var(--f);background:var(--card-solid);color:var(--ink-2);border:1px solid var(--line);border-radius:999px;padding:7px 14px;box-shadow:var(--shadow)}
+.tab[aria-selected="true"]{background:var(--navy);color:#fff;border-color:var(--navy)}
+details.settings summary,details.formal summary{color:var(--navy);font-weight:600}
+.pill{font:600 .66rem var(--f);letter-spacing:.08em}
+
+/* code */
+pre.code,.tree,pre{font-family:var(--f-code)}
+pre.code,.tree{background:var(--card-solid);border:1px solid var(--line);border-radius:12px}
+pre.code .kw{color:var(--navy)}

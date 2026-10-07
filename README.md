@@ -7,12 +7,28 @@ Damu Grid is a working technical slice of an interoperable blood-bank informatio
 end to end: **daily stock rebalancing of platelets between facilities**, under unreliable connectivity,
 with every transfer suggested by the engine and approved by a person.
 
+- **Submission overview (start here):** https://blessingsmambwe.web.app/damu-grid/overview
 - **Live demo:** https://blessingsmambwe.web.app/damu-grid/
-- **How it works (maths, interactive):** https://blessingsmambwe.web.app/damu-grid/method.html
-- **Evidence (research + benchmark):** https://blessingsmambwe.web.app/damu-grid/evidence.html
+- **How it works (maths, interactive):** https://blessingsmambwe.web.app/damu-grid/method
+- **Evidence (research + benchmark):** https://blessingsmambwe.web.app/damu-grid/evidence
+- **Submission (the brief's seven deliverables, one section each):** [docs/SUBMISSION.md](docs/SUBMISSION.md)
 
 All data is synthetic. Facility names are real towns; stock, demand and supply are simulated.
 No patient or donor data is used anywhere.
+
+## How this answers the brief
+
+| Brief deliverable | Answer | Status |
+|---|---|---|
+| Problem and user need | Platelets expire on one shelf while patients wait at another; hub data is days old | Grounded in published Kenyan data |
+| End-to-end workflow | Record → sync → nowcast → suggest → sender confirms → officer approves → courier | Built in simulation |
+| Working technical slice | Live engine in the browser, not static screens | Built |
+| System architecture and ABBIS | Damu Grid is the stock-coordination module of ABBIS: consumes unit events, returns suggestions, publishes aggregates | Engine Built; APIs Designed |
+| AI and data approach | Nowcast + explainable rule + scenario LP, evaluated on held-out futures with a lower bound | Built |
+| Adaptability | Every operational constant is a parameter; FHIR/DHIS2 interfaces | Partly Built |
+| Implementation pathway | Shadow-mode pilot with one county hub and 4–6 facilities | Designed |
+
+Details, the failure-mode table and the judging-criteria map: [docs/SUBMISSION.md](docs/SUBMISSION.md).
 
 ## The problem in one line
 
@@ -35,14 +51,15 @@ People approve or reject every suggestion. Each suggestion carries a plain-langu
 
 | Setting | Age-aware rule | + Nowcast | Best stack | Perfect-foresight bound |
 |---|---|---|---|---|
-| Fresh data | 0.304 | — | 0.299 (scenario LP) | 0.203 |
+| Fresh data | 0.304 | — | 0.299 (scenario LP; a statistical tie with the rule) | 0.203 |
 | 2-day data delay | 0.652 | 0.371 | 0.340 (nowcast → LP) | 0.203 |
 | 4-day data delay | 0.953 | 0.439 | 0.350 (nowcast → band) | 0.203 |
 | Scarce, misplaced supply | 1.635 | — | 1.230 (scenario LP) | 0.788 |
 
 Cost per unit of demand: waste = 1, unmet request = 5 (10 in the scarce setting), transfer = 0.3 per unit.
-No coordination costs 2.02 (5.63 when scarce). Quota leases bring double-allocation conflicts to exactly 0.
-Full tables, confidence intervals and the literature map: [Evidence page](https://blessingsmambwe.web.app/damu-grid/evidence.html) and `results/`.
+No coordination costs 2.02 (5.63 when scarce). Quota leases take double-allocation conflicts from 1,619 a year to 0
+at a 2-day delay (`results/lease_eval.txt`).
+Full tables, confidence intervals and the literature map: [Evidence page](https://blessingsmambwe.web.app/damu-grid/evidence) and `results/`.
 
 ## Repository
 

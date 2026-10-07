@@ -1,41 +1,6 @@
-/* Damu Grid · visual language shared with SME Export Passport (DM Sans, navy + blue tints + gold, dot map, soft cards). */
-:root{
-  --bg1:#f5f8fd; --bg2:#dce6f7;
-  --card:rgba(255,255,255,.86); --card-solid:#ffffff; --card-line:rgba(255,255,255,.9);
-  --ink:#0f2350; --ink-2:#4a5b7d; --muted:#8391ab; --line:#e4eaf4; --soft:#f1f5fb;
-  --navy:#12306b; --blue:#3f7ee0; --blue-2:#8db3ee; --pale:#cfdcf3; --gold:#d4a23a; --gold-soft:#f6ecd6;
-  --red:#cf4a3f; --ok:#2f7d4f;
-  --dot-land:#e3e9f3; --dot-ken:#c3d3ee;
-  --life1:#d4a23a; --life2:#7aa5e8; --life3:#12306b;
-  --shadow:0 1px 2px rgba(15,35,80,.04),0 10px 30px rgba(15,35,80,.07);
-  --f:"DM Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
-  color-scheme:light;
-}
-*{box-sizing:border-box}
-html,body{min-height:100%}
-body{margin:0;font:15px/1.5 var(--f);color:var(--ink);background:linear-gradient(160deg,var(--bg1) 0%,var(--bg1) 45%,var(--bg2) 100%) fixed;display:grid;grid-template-columns:76px minmax(0,1fr)}
-a{color:var(--blue)}
-:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
-[hidden]{display:none!important}
-.eyebrow{font:600 12px var(--f);letter-spacing:.16em;text-transform:uppercase;color:#31518b;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-
-/* rail */
-.rail{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;align-items:center;gap:14px;padding:16px 0;background:rgba(255,255,255,.55);border-right:1px solid var(--line)}
-.mark{width:42px;height:42px;border-radius:50%;background:var(--navy);display:grid;place-items:center}
-.mark svg{width:22px;height:22px;fill:#fff}
-.sep{width:28px;height:1px;background:var(--line);margin:4px 0}
-.ico{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:var(--navy)}
-.ico svg{width:22px;height:22px;fill:currentColor;stroke:currentColor}
-.ico:hover{background:var(--soft)}
-.ico.on{background:var(--navy);color:#fff}
-
+/* Damu Grid live demo: layout and components specific to the control room. Shared tokens live in tokens.css. */
 /* page */
 .page{padding:22px clamp(16px,2.6vw,32px) 32px;display:grid;gap:16px;min-width:0}
-.head{display:grid;gap:8px}
-.pill-demo{display:inline-flex;align-items:center;gap:6px;background:var(--gold-soft);color:#8a6414;border-radius:999px;padding:3px 10px;font:600 11px var(--f);letter-spacing:.12em}
-.pill-demo i{width:6px;height:6px;border-radius:50%;background:var(--gold)}
-h1{margin:0;font:700 clamp(1.5rem,2.6vw,2rem)/1.2 var(--f);letter-spacing:-.02em;color:var(--navy);text-wrap:balance}
-.sub{margin:0;color:var(--ink-2);font-size:.92rem}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{font:500 .86rem var(--f);background:var(--card-solid);color:var(--ink-2);border:1px solid var(--line);border-radius:999px;padding:7px 14px;cursor:pointer;display:flex;gap:8px;align-items:center;box-shadow:var(--shadow)}
 .chip b{width:20px;height:20px;border-radius:50%;display:grid;place-items:center;background:var(--soft);color:var(--navy);font-size:.72rem}
@@ -45,7 +10,6 @@ h1{margin:0;font:700 clamp(1.5rem,2.6vw,2rem)/1.2 var(--f);letter-spacing:-.02em
 /* grid */
 .grid{display:grid;grid-template-columns:minmax(0,1fr) 380px;grid-template-areas:"map side" "banner side";gap:16px;align-items:start}
 @media (max-width:1100px){.grid{grid-template-columns:1fr;grid-template-areas:"map" "banner" "side"}}
-.card{background:var(--card);border:1px solid var(--card-line);border-radius:16px;box-shadow:var(--shadow);backdrop-filter:blur(6px)}
 .mapcard{grid-area:map;position:relative;min-height:560px;display:grid;grid-template-columns:236px minmax(0,1fr);overflow:hidden}
 @media (max-width:760px){.mapcard{grid-template-columns:1fr;min-height:0}}
 .maplegend{padding:18px 0 18px 18px;display:grid;gap:12px;align-content:start;z-index:1}
@@ -126,15 +90,7 @@ h1{margin:0;font:700 clamp(1.5rem,2.6vw,2rem)/1.2 var(--f);letter-spacing:-.02em
 @media (max-width:640px){.banner{grid-template-columns:1fr}.bico{display:none}}
 
 /* controls */
-.btn{font:600 .86rem var(--f);background:var(--navy);color:#fff;border:0;border-radius:10px;padding:9px 15px;cursor:pointer;white-space:nowrap}
-.btn.ghost{background:var(--card-solid);color:var(--navy);border:1px solid var(--line)}
-.btn.light{background:#fff;color:var(--navy)}
-.btn.small{padding:5px 11px;font-size:.78rem;border-radius:8px}
-.btn.no{background:var(--card-solid);color:var(--ink-2);border:1px solid var(--line)}
-select{font:600 .84rem var(--f);background:var(--card-solid);color:var(--navy);border:1px solid var(--line);border-radius:10px;padding:8px 10px}
-.switch{white-space:nowrap;display:flex;align-items:center;gap:7px;cursor:pointer;font-size:.86rem;font-weight:500;color:var(--ink)}
-.switch input{accent-color:var(--navy);width:16px;height:16px}
 .controls{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;margin-top:4px}
 .dock{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;background:var(--card-solid);border:1px solid var(--line);border-radius:14px;padding:6px 10px 6px 6px;box-shadow:var(--shadow)}
 .vsep{width:1px;height:24px;background:var(--line)}
-@media (max-width:760px){body{grid-template-columns:1fr}.rail{position:static;height:auto;flex-direction:row;justify-content:center;padding:8px}.sep{display:none}}
+@media (max-width:760px){.daybadge{display:none}}

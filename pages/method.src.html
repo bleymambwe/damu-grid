@@ -1,27 +1,20 @@
-<title>The Perishable Network Problem</title>
+<title>Damu Grid · How it works</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* layout: thesis + live twin-network animation (the point of the page) -> the maths in six steps, each with a small interactive -> results charts -> python prototype -> formal statement & references */
 :root{
-  --bg:#f6f7f5; --panel:#ffffff; --ink:#121816; --ink-2:#4a5450; --muted:#7f8884; --grid:#e2e6e3; --border:rgba(18,24,22,.11);
-  --accent:#0d6b63; --accent-soft:#e2f0ee;
-  --life1:#e3a23b; --life2:#9fb38a; --life3:#0d6b63;
-  --waste:#a86a00; --short:#bf3a2b; --ok:#2c7a3a;
-  --s1:#8b9490; --s2:#b07a00; --s3:#0d6b63;
+  --bg:#f5f8fd; --panel:#ffffff; --ink:#0f2350; --ink-2:#4a5b7d; --muted:#8391ab; --grid:#e4eaf4; --border:rgba(18,48,107,.10);
+  --accent:#12306b; --accent-soft:#eaf0fa;
+  --waste:#a9781a; --short:#cf4a3f; --ok:#2f7d4f; --info:#3f7ee0;
   --f-math:"STIX Two Text","Cambria Math",Cambria,Georgia,serif;
-  --f-ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --f-ui:"DM Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"DM Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+  --life1:#d4a23a; --life2:#7aa5e8; --life3:#12306b;
+  --s1:#9aa8c2; --s2:#3f7ee0; --s3:#12306b;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  color-scheme:dark; --bg:#0d1110; --panel:#151b19; --ink:#e8eeeb; --ink-2:#b4bfba; --muted:#8a9590; --grid:#26302c; --border:rgba(255,255,255,.10);
-  --accent:#4dbfb2; --accent-soft:#12302c; --life1:#f0b44e; --life2:#a9c08f; --life3:#4dbfb2;
-  --waste:#e2a83c; --short:#ef7a6a; --ok:#6cc47a; --s1:#7d8783; --s2:#e2a83c; --s3:#4dbfb2;}}
-:root[data-theme="dark"]{
-  color-scheme:dark; --bg:#0d1110; --panel:#151b19; --ink:#e8eeeb; --ink-2:#b4bfba; --muted:#8a9590; --grid:#26302c; --border:rgba(255,255,255,.10);
-  --accent:#4dbfb2; --accent-soft:#12302c; --life1:#f0b44e; --life2:#a9c08f; --life3:#4dbfb2;
-  --waste:#e2a83c; --short:#ef7a6a; --ok:#6cc47a; --s1:#7d8783; --s2:#e2a83c; --s3:#4dbfb2;}
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.6;margin:0}
@@ -150,12 +143,12 @@ ol.refs{margin:0;padding-left:1.4em;display:grid;gap:5px;font-size:.86rem;color:
 
 <div class="wrap">
 
-<div class="top">
-  <div class="lbl">Fundamental problem · age-aware policy prototype</div>
-  <h1>The Perishable Network Problem</h1>
-  <p class="thesis">Items arrive at some nodes, demand appears at others, and every item has a <em>use-by period</em>. Move items around the network so demand is met before stock expires. Below, the same random future plays out under two policies.</p>
+<header class="head top">
+  <div class="eyebrow">How it works · the mathematics behind Damu Grid <span class="pill-demo"><i></i>Synthetic data</span></div>
+  <h1>Move each item to where it will be used before it expires.</h1>
+  <p class="sub">Items arrive at some nodes, demand appears at others, and every item has a use-by period. In Damu Grid the items are platelet units, the nodes are facilities, and L is the shelf life in days. Below, the same random future plays out under two policies, then six short steps explain everything the age-aware engine does.</p>
   <div class="kpis" id="kpis"></div>
-</div>
+</header>
 
 <!-- STAGE -->
 <div class="stage" id="stage">
@@ -330,11 +323,11 @@ ol.refs{margin:0;padding-left:1.4em;display:grid;gap:5px;font-size:.86rem;color:
 
 <!-- PYTHON -->
 <section id="python">
-  <header><div class="lbl">Python prototype</div><h2>perishnet: the same policy in about 400 lines of Python</h2>
-  <p class="lede">The package lives in <code>opportunity-intelligence/age_aware_prototype/</code>. Its random-number generator is a bit-for-bit copy of this page's, so the same settings give identical results in both. A test checks five configurations against numbers exported from this page.</p></header>
+  <header><div class="lbl">Python prototype</div><h2>The same engine runs in Python and in your browser.</h2>
+  <p class="lede">The reference engine is the <code>perishnet</code> package in <code>engine/</code> of the <a href="https://github.com/bleymambwe/damu-grid" target="_blank" rel="noopener">damu-grid repository</a>. Its random-number generator is a bit-for-bit copy of this page's, so the same settings give identical results in both. A test checks five configurations against numbers exported from this page.</p></header>
   <div class="g2">
     <div style="display:grid;gap:10px;min-width:0">
-<pre class="tree">age_aware_prototype/
+<pre class="tree">damu-grid/engine/
   perishnet/
     rng.py         seeded generator, Poisson draw + quantile
     model.py       Params, supply/demand streams
@@ -342,12 +335,12 @@ ol.refs{margin:0;padding-left:1.4em;display:grid;gap:5px;font-size:.86rem;color:
     simulate.py    period loop, full trace
     viz.py         figures + network GIF
     __main__.py    command line
-  tests/           21 tests: parity, conservation, invariants
+  tests/           35 tests: parity, conservation, leases, invariants
   outputs/         generated figures
   README.md</pre>
 <pre class="code"><span class="c"># run all three policies, print the table, write figures</span>
 python -m perishnet --delay 0 --mismatch 0.6 --seed 7
-python -m pytest -q        <span class="c"># 21 passed</span></pre>
+python -m pytest -q        <span class="c"># 35 passed</span></pre>
       <p><span class="pill ok">Parity verified</span> <span class="note">Python, seed 7, δ = 0: cost per unit demand 2.035 / 0.334 / 0.310 for π₀ / π₁ / π₂, the same as the table above at default settings.</span></p>
     </div>
 <pre class="code"><span class="kw">def</span> at_risk(stock, lam, life):

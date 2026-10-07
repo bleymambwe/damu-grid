@@ -3,26 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3c5 7 9 12 9 17a9 9 0 0 1-18 0c0-5 4-10 9-17z' fill='%23e5484d'/%3E%3C/svg%3E">
-<title>Perishable Network Policy Research</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='16' fill='%2312306b'/%3E%3Cpath d='M16 7c3.4 4.6 6 8 6 11.2a6 6 0 0 1-12 0C10 15 12.6 11.6 16 7z' fill='%23fff'/%3E%3C/svg%3E">
+<title>Damu Grid · Evidence</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* layout: verdict (the answer) -> results by setting (chart + table) -> overview heatmap -> literature map by field -> policy classes -> method & limits -> roadmap -> references */
 :root{
-  --bg:#f6f7f5; --panel:#ffffff; --ink:#121816; --ink-2:#4a5450; --muted:#7f8884; --grid:#e2e6e3; --border:rgba(18,24,22,.11);
-  --accent:#0d6b63; --accent-soft:#e2f0ee; --waste:#a86a00; --short:#bf3a2b; --ok:#2c7a3a; --info:#2a6fc4;
+  --bg:#f5f8fd; --panel:#ffffff; --ink:#0f2350; --ink-2:#4a5b7d; --muted:#8391ab; --grid:#e4eaf4; --border:rgba(18,48,107,.10);
+  --accent:#12306b; --accent-soft:#eaf0fa;
+  --waste:#a9781a; --short:#cf4a3f; --ok:#2f7d4f; --info:#3f7ee0;
   --f-math:"STIX Two Text","Cambria Math",Cambria,Georgia,serif;
-  --f-ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  --f-ui:"DM Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"DM Sans",ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  color-scheme:dark; --bg:#0d1110; --panel:#151b19; --ink:#e8eeeb; --ink-2:#b4bfba; --muted:#8a9590; --grid:#26302c; --border:rgba(255,255,255,.10);
-  --accent:#4dbfb2; --accent-soft:#12302c; --waste:#e2a83c; --short:#ef7a6a; --ok:#6cc47a; --info:#6fa8ef;}}
-:root[data-theme="dark"]{
-  color-scheme:dark; --bg:#0d1110; --panel:#151b19; --ink:#e8eeeb; --ink-2:#b4bfba; --muted:#8a9590; --grid:#26302c; --border:rgba(255,255,255,.10);
-  --accent:#4dbfb2; --accent-soft:#12302c; --waste:#e2a83c; --short:#ef7a6a; --ok:#6cc47a; --info:#6fa8ef;}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.6;margin:0}
 .wrap{max-width:1160px;margin:0 auto;padding-inline:16px;padding-block:26px 72px}
@@ -93,22 +89,26 @@ ul.clean li::marker{color:var(--accent)}
 ol.refs{margin:0;padding-left:1.5em;display:grid;gap:5px;font-size:.84rem;color:var(--ink-2)}
 ol.refs a{word-break:break-word}
 </style>
-
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/pages.css">
 </head>
 <body>
-<nav class="dg-nav" aria-label="Damu Grid pages"><a class="dg-home" href="./">← Damu Grid live demo</a>
-<a href="method.html">How it works</a><a href="evidence.html" aria-current="page">Evidence</a>
-<a href="https://github.com/bleymambwe/damu-grid" target="_blank" rel="noopener">Code</a></nav>
-<style>.dg-nav{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border, #ccc);
-background:var(--panel, #fff);font:500 14px "IBM Plex Sans",system-ui,sans-serif;position:sticky;top:0;z-index:5}
-.dg-nav a{color:var(--ink-2, #444);text-decoration:none} .dg-nav a:hover,.dg-nav a[aria-current]{color:var(--ink, #111)}
-.dg-nav .dg-home{color:var(--accent, #0d6b63);font-weight:600;margin-right:auto}</style>
+<nav class="rail" aria-label="Damu Grid">
+  <a class="mark" href="./" aria-label="Damu Grid home"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 7c3.4 4.6 6 8 6 11.2a6 6 0 0 1-12 0C10 15 12.6 11.6 16 7z"/></svg></a>
+  <span class="sep" aria-hidden="true"></span>
+  <a class="ico" href="overview.html" title="Overview" aria-label="Overview"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg></a>
+  <a class="ico" href="./" title="Live demo" aria-label="Live demo"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="6" cy="7" r="2.4"/><circle cx="18" cy="6" r="2.4"/><circle cx="12" cy="17" r="2.4"/><path d="M8 7.6l8-1M7 9l4 6M17 8l-4 7" fill="none" stroke-width="1.8"/></svg></a>
+  <a class="ico" href="method.html" title="How it works" aria-label="How it works"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h9l5 5v11H5z" fill="none" stroke-width="1.8"/><path d="M8 12h8M8 16h6" fill="none" stroke-width="1.8"/></svg></a>
+  <a class="ico on" href="evidence.html" aria-current="page" title="Evidence" aria-label="Evidence"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 20V10M10 20V5M15 20v-7M20 20V8" fill="none" stroke-width="2.2" stroke-linecap="round"/></svg></a>
+  <a class="ico" href="https://github.com/bleymambwe/damu-grid" target="_blank" rel="noopener" title="Code on GitHub" aria-label="Code on GitHub"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 8l-4 4 4 4M15 8l4 4-4 4" fill="none" stroke-width="2" stroke-linecap="round"/></svg></a>
+</nav>
+<div class="dg-main">
 <div class="wrap">
-<div style="display:grid;gap:10px;padding-block:4px 20px">
-  <div class="lbl">Research synthesis · operations research · stochastic control · networks · quantitative finance</div>
-  <h1>Perishable Network Policy Research</h1>
-  <p class="lede">Which policy best moves decaying, single-use items around a network under random demand and delayed information? This report surveys eight research fields, implements one representative method from each that fits, and tests them all on the same held-out random futures against a perfect-information lower bound.</p>
-</div>
+<header class="head top">
+  <div class="eyebrow">Evidence · research synthesis and benchmark <span class="pill-demo"><i></i>Synthetic data</span></div>
+  <h1>Fresh information matters more than a cleverer optimiser.</h1>
+  <p class="sub">Which policy best moves perishable, single-use units around a network under random demand and late data? This report surveys eight research fields, implements one representative method from each that fits, and tests them all on the same held-out random futures against a perfect-information lower bound.</p>
+</header>
 
 <!-- VERDICT -->
 <div class="verdict" id="verdict">
@@ -324,7 +324,7 @@ const bestBy={}; keys.forEach(k=>{ bestBy[k]=rowsOf(k)[0]; });
 $('heat-body').innerHTML=order.filter(f=>keys.some(k=>S[k].some(r=>r.spec[0]!=='bound'&&fam(r.spec)===f))).map(f=>'<tr><td>'+famLabel[f]+'</td>'+keys.map(k=>{
   const r=S[k].find(x=>x.spec[0]!=='bound'&&fam(x.spec)===f); if(!r) return '<td class="h" style="color:var(--muted)">n/a</td>';
   const g=r.gap, a=Math.max(0,Math.min(1,1-(g-0.4)/2.6)); const isBest=r===bestBy[k];
-  return `<td class="h" style="background:color-mix(in srgb, var(--accent) ${Math.round(a*55)}%, transparent);${isBest?'font-weight:600;outline:2px solid var(--accent);outline-offset:-2px':''}">${(100*g).toFixed(0)}%</td>`; }).join('')+'</tr>').join('');
+  return `<td class="h" style="background:color-mix(in srgb, var(--blue, #3f7ee0) ${Math.round(a*45)}%, transparent);${isBest?'font-weight:600;outline:2px solid var(--accent);outline-offset:-2px':''}">${(100*g).toFixed(0)}%</td>`; }).join('')+'</tr>').join('');
 
 // verdict, findings
 const V=B.verdict||{};
@@ -338,6 +338,6 @@ $('meta-note').textContent=B.generated||'';
 render();
 })();
 </script>
-
+</div>
 </body>
 </html>
