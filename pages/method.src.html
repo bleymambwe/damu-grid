@@ -1,0 +1,703 @@
+<title>The Perishable Network Problem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* layout: thesis + live twin-network animation (the point of the page) -> the maths in six steps, each with a small interactive -> results charts -> python prototype -> formal statement & references */
+:root{
+  --bg:#f6f7f5; --panel:#ffffff; --ink:#121816; --ink-2:#4a5450; --muted:#7f8884; --grid:#e2e6e3; --border:rgba(18,24,22,.11);
+  --accent:#0d6b63; --accent-soft:#e2f0ee;
+  --life1:#e3a23b; --life2:#9fb38a; --life3:#0d6b63;
+  --waste:#a86a00; --short:#bf3a2b; --ok:#2c7a3a;
+  --s1:#8b9490; --s2:#b07a00; --s3:#0d6b63;
+  --f-math:"STIX Two Text","Cambria Math",Cambria,Georgia,serif;
+  --f-ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  color-scheme:dark; --bg:#0d1110; --panel:#151b19; --ink:#e8eeeb; --ink-2:#b4bfba; --muted:#8a9590; --grid:#26302c; --border:rgba(255,255,255,.10);
+  --accent:#4dbfb2; --accent-soft:#12302c; --life1:#f0b44e; --life2:#a9c08f; --life3:#4dbfb2;
+  --waste:#e2a83c; --short:#ef7a6a; --ok:#6cc47a; --s1:#7d8783; --s2:#e2a83c; --s3:#4dbfb2;}}
+:root[data-theme="dark"]{
+  color-scheme:dark; --bg:#0d1110; --panel:#151b19; --ink:#e8eeeb; --ink-2:#b4bfba; --muted:#8a9590; --grid:#26302c; --border:rgba(255,255,255,.10);
+  --accent:#4dbfb2; --accent-soft:#12302c; --life1:#f0b44e; --life2:#a9c08f; --life3:#4dbfb2;
+  --waste:#e2a83c; --short:#ef7a6a; --ok:#6cc47a; --s1:#7d8783; --s2:#e2a83c; --s3:#4dbfb2;}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.6;margin:0}
+.wrap{max-width:1160px;margin:0 auto;padding-inline:16px;padding-block:26px 72px}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.2}
+h1{font-family:var(--f-math);font-weight:600;font-size:clamp(1.9rem,4.4vw,2.7rem)}
+h2{font-family:var(--f-math);font-weight:600;font-size:1.5rem}
+h3{font-family:var(--f-ui);font-weight:600;font-size:1rem}
+p{margin:0}
+.lbl{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{color:var(--ink-2);max-width:70ch}
+.m{font-family:var(--f-math);font-size:1.08em;white-space:nowrap}
+.m i,i.v{font-style:italic}
+sub,sup{font-size:.7em;line-height:0}
+.eq{font-family:var(--f-math);font-size:1.15rem;background:var(--accent-soft);border-radius:8px;padding:10px 14px;overflow-x:auto;white-space:nowrap}
+.eq .say{display:block;font-family:var(--f-ui);font-size:.8rem;color:var(--ink-2);white-space:normal;margin-top:2px}
+section{display:grid;gap:16px;padding-block:30px;border-top:1px solid var(--grid)}
+section>header{display:grid;gap:6px}
+.num{font-variant-numeric:tabular-nums;font-family:var(--f-mono)}
+.note{font-size:.8rem;color:var(--muted)}
+
+/* hero */
+.top{display:grid;gap:10px;padding-block:4px 18px}
+.thesis{font-family:var(--f-math);font-size:clamp(1.1rem,2.3vw,1.4rem);line-height:1.45;max-width:58ch;color:var(--ink-2)}
+.thesis em{color:var(--accent)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.kpi{border-left:2px solid var(--accent);padding-left:10px;display:grid;gap:0}
+.kpi b{font-family:var(--f-math);font-size:1.5rem;font-weight:600}
+.kpi span{font-size:.76rem;color:var(--muted)}
+
+.stage{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:14px;display:grid;gap:12px}
+.twins{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:820px){.twins{grid-template-columns:1fr}}
+.twin{display:grid;gap:6px;min-width:0}
+.twin-head{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between}
+.twin canvas{width:100%;height:auto;aspect-ratio:16/11;display:block;border-radius:8px;background:var(--bg)}
+.counters{display:flex;flex-wrap:wrap;gap:4px 14px;font-family:var(--f-mono);font-size:.78rem;color:var(--ink-2)}
+.counters b{color:var(--ink);font-weight:500}
+.counters .w b{color:var(--waste)} .counters .u b{color:var(--short)}
+.transport{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center}
+.transport input[type=range]{flex:1 1 200px}
+.btn{font:500 .86rem var(--f-ui);background:var(--accent);color:var(--bg);border:0;border-radius:6px;padding:7px 14px;cursor:pointer;min-width:84px}
+.btn.ghost{background:transparent;color:var(--accent);border:1px solid var(--accent);min-width:0}
+select,input[type=number]{font:inherit;font-size:.86rem;background:var(--bg);color:var(--ink);border:1px solid var(--border);border-radius:6px;padding:5px 8px}
+input[type=number]{width:72px}
+input[type=range]{accent-color:var(--accent)}
+.legendbar{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.8rem;color:var(--ink-2);align-items:center}
+.lifescale{display:inline-block;width:90px;height:10px;border-radius:2px;background:linear-gradient(90deg,var(--life1),var(--life2),var(--life3));vertical-align:middle;margin-inline:6px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--life2);vertical-align:middle;margin-right:5px}
+.ring{display:inline-block;width:11px;height:11px;border-radius:50%;border:2px solid var(--short);vertical-align:middle;margin-right:5px}
+.xw{color:var(--waste);font-weight:700;margin-right:4px}
+details.settings{border-top:1px solid var(--grid);padding-top:10px}
+details.settings summary{cursor:pointer;font-size:.88rem;color:var(--accent);font-weight:500}
+.ctrls{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px 18px;padding-top:10px}
+.ctrl{display:grid;gap:2px}
+.ctrl label{display:flex;justify-content:space-between;gap:8px;font-size:.84rem;color:var(--ink-2)}
+.ctrl label output{font-family:var(--f-mono);color:var(--ink)}
+.ctrl input[type=range]{width:100%}
+
+/* steps */
+.steps{display:grid;gap:18px}
+.step{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:18px;background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px}
+@media (max-width:860px){.step{grid-template-columns:1fr}}
+.step>*{min-width:0}
+.step .txt{display:grid;gap:10px;align-content:start}
+.step .k{font-family:var(--f-mono);font-size:.72rem;color:var(--accent);letter-spacing:.08em;text-transform:uppercase}
+.step p{color:var(--ink-2);font-size:.93rem}
+.step .eq,.step .readout{white-space:normal}
+.viz{display:grid;gap:10px;align-content:start}
+.viz svg{width:100%;height:auto;display:block}
+.viz svg text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:end}
+.readout{font-family:var(--f-math);font-size:1.05rem;background:var(--bg);border-radius:6px;padding:8px 12px;overflow-x:auto;white-space:nowrap}
+table.zt{border-collapse:collapse;font-size:.84rem}
+table.zt td,table.zt th{padding:3px 10px;border-bottom:1px solid var(--grid);text-align:right;font-family:var(--f-mono)}
+table.zt th{font-weight:500;color:var(--muted)}
+
+/* belt */
+.belt{display:grid;grid-template-columns:repeat(5,minmax(0,1fr)) minmax(0,.9fr);gap:6px;align-items:end}
+.slot{display:grid;gap:4px;justify-items:center}
+.slot .col{width:100%;max-width:70px;height:120px;border:1px dashed var(--grid);border-radius:6px;display:flex;flex-direction:column-reverse;padding:3px;gap:2px;overflow:hidden}
+.slot .col i{display:block;height:9px;border-radius:2px;flex:none;animation:pop .35s ease-out}
+.slot .col i.gone{opacity:.25;outline:1px solid var(--short)}
+.slot span{font-family:var(--f-mono);font-size:.72rem;color:var(--muted);text-align:center}
+.slot.bin .col{border-color:var(--waste)}
+.slot.bin .col i{background:var(--waste)}
+@keyframes pop{from{transform:scaleY(.2);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.slot .col i{animation:none}}
+
+/* charts */
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px}
+.g2>*{min-width:0}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px;display:grid;gap:8px;align-content:start}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.8rem;color:var(--ink-2)}
+.legend span::before{content:"";display:inline-block;width:14px;height:3px;border-radius:2px;margin-right:6px;vertical-align:middle;background:var(--c)}
+.heat{display:grid;gap:4px}
+.heat canvas{width:100%;height:96px;display:block;border-radius:4px}
+.tablewrap{overflow-x:auto;border:1px solid var(--border);border-radius:8px;background:var(--panel)}
+table.res{border-collapse:collapse;width:100%;min-width:560px;font-size:.86rem}
+table.res th,table.res td{padding:8px 12px;border-bottom:1px solid var(--grid);white-space:nowrap}
+table.res th{font:500 .7rem var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted);text-align:left}
+table.res td.n,table.res th.n{text-align:right;font-family:var(--f-mono)}
+table.res tr:last-child td{border-bottom:0}
+table.res tr.best td{background:var(--accent-soft)}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px;background:var(--c)}
+
+/* python */
+pre.code{margin:0;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;font:12.5px/1.55 var(--f-mono);color:var(--ink)}
+pre.code .c{color:var(--muted)} pre.code .kw{color:var(--accent);font-weight:500}
+.tree{font:12.5px/1.6 var(--f-mono);background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 14px;margin:0;overflow-x:auto;color:var(--ink-2)}
+.gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.gallery figure{margin:0;background:#f6f7f5;border:1px solid var(--border);border-radius:8px;padding:8px;display:grid;gap:6px}
+.gallery figcaption{font-size:.78rem;color:#4a5450}
+.gallery img{width:100%;height:auto;display:block;border-radius:4px}
+.pill{display:inline-block;font:500 .7rem var(--f-mono);text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.pill.ok{color:var(--ok)}
+details.formal{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:12px 16px}
+details.formal summary{cursor:pointer;font-weight:500;color:var(--accent)}
+details.formal .in{display:grid;gap:10px;padding-top:12px}
+ol.refs{margin:0;padding-left:1.4em;display:grid;gap:5px;font-size:.86rem;color:var(--ink-2)}
+</style>
+
+<div class="wrap">
+
+<div class="top">
+  <div class="lbl">Fundamental problem · age-aware policy prototype</div>
+  <h1>The Perishable Network Problem</h1>
+  <p class="thesis">Items arrive at some nodes, demand appears at others, and every item has a <em>use-by period</em>. Move items around the network so demand is met before stock expires. Below, the same random future plays out under two policies.</p>
+  <div class="kpis" id="kpis"></div>
+</div>
+
+<!-- STAGE -->
+<div class="stage" id="stage">
+  <div class="twins">
+    <div class="twin">
+      <div class="twin-head"><label class="lbl" for="pol-a">Left policy</label>
+        <select id="pol-a"><option value="0" selected>π₀ no transfers</option><option value="1">π₁ balance counts</option><option value="2">π₂ age-aware</option></select></div>
+      <canvas id="cv-a" width="640" height="440" aria-label="Network animation, left policy"></canvas>
+      <div class="counters" id="ct-a"></div>
+    </div>
+    <div class="twin">
+      <div class="twin-head"><label class="lbl" for="pol-b">Right policy</label>
+        <select id="pol-b"><option value="0">π₀ no transfers</option><option value="1">π₁ balance counts</option><option value="2" selected>π₂ age-aware</option></select></div>
+      <canvas id="cv-b" width="640" height="440" aria-label="Network animation, right policy"></canvas>
+      <div class="counters" id="ct-b"></div>
+    </div>
+  </div>
+  <div class="transport">
+    <button class="btn" id="play">Pause</button>
+    <button class="btn ghost" id="stepb" aria-label="Back one period">◀</button>
+    <button class="btn ghost" id="stepf" aria-label="Forward one period">▶</button>
+    <label class="lbl" for="speed">Speed</label>
+    <select id="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select>
+    <input type="range" id="scrub" min="0" max="364" value="30" aria-label="Period">
+    <span class="num" id="tlabel">period 30</span>
+  </div>
+  <div class="legendbar">
+    <span>Bars = stock by life left: expiring<span class="lifescale"></span>fresh</span>
+    <span><span class="dot"></span>item moving between nodes</span>
+    <span><span class="ring"></span>unmet demand</span>
+    <span><span class="xw">✕</span>wasted (expired)</span>
+    <span>Node size ∝ demand rate λ</span>
+  </div>
+  <details class="settings"><summary>Settings (apply to every chart on the page)</summary>
+    <div class="ctrls">
+      <div class="ctrl"><label for="sb-n">Nodes N <output id="sb-no"></output></label><input type="range" id="sb-n" min="2" max="6" step="1" value="4"></div>
+      <div class="ctrl"><label for="sb-L">Life L (periods) <output id="sb-Lo"></output></label><input type="range" id="sb-L" min="2" max="12" step="1" value="5"></div>
+      <div class="ctrl"><label for="sb-rho">Supply ÷ demand ρ <output id="sb-rhoo"></output></label><input type="range" id="sb-rho" min="0.7" max="1.6" step="0.05" value="1.1"></div>
+      <div class="ctrl"><label for="sb-m">Share of supply landing on node 1, m <output id="sb-mo"></output></label><input type="range" id="sb-m" min="0" max="1" step="0.05" value="0.6"></div>
+      <div class="ctrl"><label for="sb-d">Information delay δ <output id="sb-do"></output></label><input type="range" id="sb-d" min="0" max="6" step="1" value="0"></div>
+      <div class="ctrl"><label for="sb-p">Cost of unmet demand p (waste = 1) <output id="sb-po"></output></label><input type="range" id="sb-p" min="1" max="20" step="1" value="5"></div>
+      <div class="ctrl"><label for="sb-c">Cost per item moved c <output id="sb-co"></output></label><input type="range" id="sb-c" min="0" max="2" step="0.05" value="0.3"></div>
+      <div class="ctrl"><label for="sb-seed">Random seed <output id="sb-seedo"></output></label><input type="range" id="sb-seed" min="1" max="50" step="1" value="7"></div>
+    </div>
+  </details>
+</div>
+
+<!-- MATHS -->
+<section id="maths">
+  <header><div class="lbl">The maths in six steps</div><h2>Everything the age-aware policy does, at first-year engineering level</h2>
+  <p class="lede">You need four tools: a running balance, a weighted cost, a mean plus a few standard deviations, and a queue. Each step has a small model you can change.</p></header>
+
+  <div class="steps">
+    <div class="step">
+      <div class="txt"><span class="k">Step 1 · Keep a ledger by age</span>
+        <h3>Stock is a list of counts, one per “periods left”</h3>
+        <p>At node <span class="m"><i>i</i></span>, let <span class="m"><i>x</i><sub><i>i</i></sub>(<i>r</i>)</span> be the number of items with <span class="m"><i>r</i></span> periods of life left. Every period, demand takes the oldest items first, then everything moves one slot closer to expiry. Items still in the last slot are thrown away.</p>
+        <div class="eq"><i>x</i>(<i>r</i>)<sub>tomorrow</sub> = <i>x</i>(<i>r</i>+1)<sub>today</sub> − used(<i>r</i>+1)<span class="say">a conveyor belt: each slot inherits the slot behind it, minus what was used</span></div>
+        <div class="eq">wasted = <i>x</i>(1) − used(1),&nbsp;&nbsp; <i>x</i>(<i>L</i>)<sub>tomorrow</sub> = new arrivals</div>
+      </div>
+      <div class="viz">
+        <div class="belt" id="belt"></div>
+        <div class="row"><button class="btn ghost" id="belt-next">Next period</button><span class="note" id="belt-msg"></span></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="txt"><span class="k">Step 2 · Score a period</span>
+        <h3>One number to minimise</h3>
+        <p>Add up three costs. Running out hurts more than throwing an item away, so <span class="m"><i>p</i> &gt; <i>h</i></span>.</p>
+        <div class="eq">cost = <i>h</i>·<i>W</i> + <i>p</i>·<i>U</i> + <i>c</i>·<i>M</i><span class="say">W items wasted, U units of demand unmet, M items moved</span></div>
+        <p>The ratio that matters is the <b>critical ratio</b>:</p>
+        <div class="eq"><i>β</i> = <i>p</i> ⁄ (<i>p</i> + <i>h</i>)<span class="say">with h = 1, p = 5: β = 5/6 ≈ 0.83, so aim to cover demand 83% of the time</span></div>
+      </div>
+      <div class="viz">
+        <div class="readout" id="cost-ex"></div>
+        <p class="note">Example from the left animation's current period. Changing the policy or the period updates it.</p>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="txt"><span class="k">Step 3 · How much to keep</span>
+        <h3>Mean plus <i>z</i> standard deviations</h3>
+        <p>A transfer takes one period, so each node needs enough for about two periods of demand. If demand averages <span class="m"><i>λ</i></span> per period, two periods have</p>
+        <div class="eq"><i>μ</i> = 2<i>λ</i>,&nbsp;&nbsp; <i>σ</i> = √(2<i>λ</i>)<span class="say">random arrivals (Poisson): the variance equals the mean</span></div>
+        <div class="eq"><i>s</i> ≈ <i>μ</i> + <i>z</i>·<i>σ</i>,&nbsp;&nbsp; <i>z</i> = Φ<sup>−1</sup>(<i>β</i>)<span class="say">the same z you read from a normal table</span></div>
+        <table class="zt"><tr><th>β</th><td>0.50</td><td>0.80</td><td>0.83</td><td>0.90</td><td>0.95</td></tr><tr><th>z</th><td>0.00</td><td>0.84</td><td>0.97</td><td>1.28</td><td>1.64</td></tr></table>
+        <p class="note">The code uses the exact Poisson quantile. The normal rule is usually within one item of it.</p>
+      </div>
+      <div class="viz">
+        <div class="row">
+          <div class="ctrl" style="flex:1 1 160px"><label for="tg-l">Demand per period λ <output id="tg-lo"></output></label><input type="range" id="tg-l" min="1" max="10" step="0.5" value="4"></div>
+          <div class="ctrl" style="flex:1 1 160px"><label for="tg-p">p (h = 1) <output id="tg-po"></output></label><input type="range" id="tg-p" min="1" max="20" step="1" value="5"></div>
+        </div>
+        <svg id="tg-svg" viewBox="0 0 560 210" role="img" aria-label="Distribution of two-period demand with target stock"></svg>
+        <div class="readout" id="tg-out"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="txt"><span class="k">Step 4 · Will an item be used in time?</span>
+        <h3>The bucket rule</h3>
+        <p>Demand uses the oldest items first, at about <span class="m"><i>λ</i></span> per period. In <span class="m"><i>r</i></span> periods the node gets through about <span class="m"><i>λ</i>·<i>r</i></span> items. So fill a bucket for each age, oldest first:</p>
+        <div class="eq">room(<i>r</i>) = ⌊<i>λ</i>·<i>r</i>⌋ − (items already counted safe)<span class="say">how many more items this node can use within r periods</span></div>
+        <div class="eq">safe(<i>r</i>) = min( <i>x</i>(<i>r</i>), room(<i>r</i>) ),&nbsp;&nbsp; risk(<i>r</i>) = <i>x</i>(<i>r</i>) − safe(<i>r</i>)</div>
+        <p>Anything that overflows its bucket will expire on the shelf unless it moves. Items with <span class="m"><i>r</i> = 1</span> cannot be rescued: they would expire in transit.</p>
+      </div>
+      <div class="viz">
+        <div class="row">
+          <div class="ctrl" style="flex:1 1 150px"><label for="bk-l">λ at this node <output id="bk-lo"></output></label><input type="range" id="bk-l" min="0.5" max="6" step="0.5" value="2"></div>
+          <div class="ctrl"><label for="bk-1">x(1)</label><input type="number" id="bk-1" min="0" max="15" value="3"></div>
+          <div class="ctrl"><label for="bk-2">x(2)</label><input type="number" id="bk-2" min="0" max="15" value="2"></div>
+          <div class="ctrl"><label for="bk-3">x(3)</label><input type="number" id="bk-3" min="0" max="15" value="5"></div>
+        </div>
+        <svg id="bk-svg" viewBox="0 0 560 230" role="img" aria-label="Bucket rule: safe and at-risk items per age"></svg>
+        <div class="readout" id="bk-out"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="txt"><span class="k">Step 5 · Where should it go?</span>
+        <h3>Spare capacity at each neighbour</h3>
+        <p>The same bucket idea, seen from the receiving node <span class="m"><i>j</i></span>: how many more items with <span class="m"><i>r</i></span> periods left could it use in time?</p>
+        <div class="eq">spare<sub><i>j</i></sub>(<i>r</i>) = ⌊<i>λ</i><sub><i>j</i></sub>·<i>r</i>⌋ − (items at <i>j</i> with ≤ <i>r</i> left, including incoming)</div>
+        <p>Send each at-risk item to the neighbour with the largest spare capacity, oldest items first. Recount after every move, so two senders never fill the same gap twice.</p>
+      </div>
+      <div class="viz">
+        <div class="row">
+          <div class="ctrl" style="flex:1 1 150px"><label for="nb-l">Neighbour λ<sub>j</sub> <output id="nb-lo"></output></label><input type="range" id="nb-l" min="0.5" max="8" step="0.5" value="5"></div>
+          <div class="ctrl"><label for="nb-x">Neighbour items with 3 left</label><input type="number" id="nb-x" min="0" max="40" value="4"></div>
+        </div>
+        <div class="readout" id="nb-out" style="white-space:normal"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="txt"><span class="k">Step 6 · Then fix shortfalls, oldest first</span>
+        <h3>Top up nodes below target</h3>
+        <p>After the rescue moves, compare each node's stock (including what is on its way) with its target <span class="m"><i>s</i><sub><i>i</i></sub></span> from step 3. Nodes above target send to nodes below it, <b>oldest sendable items first</b>, because the receiver will use them soon anyway.</p>
+        <div class="eq">surplus<sub><i>i</i></sub> = held<sub><i>i</i></sub> − <i>s</i><sub><i>i</i></sub> &gt; 0 &nbsp;→&nbsp; send to &nbsp;shortfall<sub><i>j</i></sub> = <i>s</i><sub><i>j</i></sub> − held<sub><i>j</i></sub> &gt; 0</div>
+        <p>π₁ does only this step and sends its <b>freshest</b> items. That one difference, plus the rescue in step 4, is what separates π₂ from π₁.</p>
+      </div>
+      <div class="txt">
+        <span class="k">Why stale information hurts</span>
+        <p>If decisions use stock counts that are <span class="m"><i>δ</i></span> periods old, a node may be asked to send items it has already used or lost. The prototype counts these as <b>conflicts</b>. With <span class="m"><i>δ</i> = 0</span> there are none; raise δ in Settings and watch them appear. The cure is a reservation layer: each node owns a fixed quota it can commit without asking, and only moving quota needs a confirmed message.</p>
+        <div class="eq">∑<sub><i>i</i></sub> quota<sub><i>i</i></sub> = total stock,&nbsp;&nbsp; node <i>i</i> commits ≤ quota<sub><i>i</i></sub></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RESULTS -->
+<section id="results">
+  <header><div class="lbl">Results</div><h2>Same random future, three policies</h2>
+  <p class="lede">Horizon 365 periods. All three policies see identical supply and demand, so the differences come from the policy alone.</p></header>
+  <div class="tablewrap"><table class="res"><thead><tr><th>Policy</th><th class="n">Wasted ÷ supplied</th><th class="n">Unmet ÷ demanded</th><th class="n">Moved per period</th><th class="n">Conflicts</th><th class="n">Cost per unit demand</th></tr></thead><tbody id="res"></tbody></table></div>
+  <div class="g2">
+    <div class="card chart"><h3>Cumulative cost</h3><svg id="cum-svg" viewBox="0 0 640 260" role="img" aria-label="Cumulative cost over time"></svg>
+      <div class="legend"><span style="--c:var(--s1)">π₀ no transfers</span><span style="--c:var(--s2)">π₁ balance counts</span><span style="--c:var(--s3)">π₂ age-aware</span></div></div>
+    <div class="card chart"><h3>Sweep one setting</h3>
+      <select id="sw-x" aria-label="Setting to sweep"><option value="delta">Information delay δ</option><option value="m">Supply share on node 1, m</option><option value="L">Life L</option><option value="rho">Supply ÷ demand ρ</option></select>
+      <svg id="sw-svg" viewBox="0 0 640 260" role="img" aria-label="Cost per unit demand against swept setting"></svg>
+      <p class="note" id="sw-note"></p></div>
+  </div>
+  <div class="card">
+    <h3>Age of stock over time (all nodes)</h3>
+    <p class="note">Each row is a “periods left” value, top = fresh, bottom = about to expire. Brighter = more items. Under π₀, stock piles up near expiry; under π₂ it is used while fresher.</p>
+    <div class="heat"><span class="lbl" id="hm-a-l">π₀</span><canvas id="hm-a" width="1100" height="96"></canvas></div>
+    <div class="heat"><span class="lbl" id="hm-b-l">π₂</span><canvas id="hm-b" width="1100" height="96"></canvas></div>
+  </div>
+</section>
+
+<!-- PYTHON -->
+<section id="python">
+  <header><div class="lbl">Python prototype</div><h2>perishnet: the same policy in about 400 lines of Python</h2>
+  <p class="lede">The package lives in <code>opportunity-intelligence/age_aware_prototype/</code>. Its random-number generator is a bit-for-bit copy of this page's, so the same settings give identical results in both. A test checks five configurations against numbers exported from this page.</p></header>
+  <div class="g2">
+    <div style="display:grid;gap:10px;min-width:0">
+<pre class="tree">age_aware_prototype/
+  perishnet/
+    rng.py         seeded generator, Poisson draw + quantile
+    model.py       Params, supply/demand streams
+    policies.py    no_transfer, balance_counts, age_aware
+    simulate.py    period loop, full trace
+    viz.py         figures + network GIF
+    __main__.py    command line
+  tests/           21 tests: parity, conservation, invariants
+  outputs/         generated figures
+  README.md</pre>
+<pre class="code"><span class="c"># run all three policies, print the table, write figures</span>
+python -m perishnet --delay 0 --mismatch 0.6 --seed 7
+python -m pytest -q        <span class="c"># 21 passed</span></pre>
+      <p><span class="pill ok">Parity verified</span> <span class="note">Python, seed 7, δ = 0: cost per unit demand 2.035 / 0.334 / 0.310 for π₀ / π₁ / π₂, the same as the table above at default settings.</span></p>
+    </div>
+<pre class="code"><span class="kw">def</span> at_risk(stock, lam, life):
+    risk, used = [0] * (life + 1), 0
+    <span class="kw">for</span> r <span class="kw">in</span> range(1, life + 1):
+        room = max(0, floor(lam * r) - used)   <span class="c"># bucket size</span>
+        safe = min(stock[r], room)
+        risk[r] = stock[r] - safe              <span class="c"># overflow</span>
+        used += safe
+    <span class="kw">return</span> risk
+
+<span class="kw">def</span> age_aware(obs, P):
+    x = [v[:] <span class="kw">for</span> v <span class="kw">in</span> obs]
+    incoming = [[0] * len(v) <span class="kw">for</span> v <span class="kw">in</span> obs]
+    plan = []
+    risk = [at_risk(x[i], P.lam[i], P.life) <span class="kw">for</span> i <span class="kw">in</span> range(P.n_nodes)]
+    <span class="kw">for</span> r <span class="kw">in</span> range(2, P.life + 1):          <span class="c"># r = 1 would expire in transit</span>
+        <span class="kw">for</span> i <span class="kw">in</span> range(P.n_nodes):
+            left = risk[i][r]
+            <span class="kw">while</span> left &gt; 0:
+                j, cap = best_receiver(x, incoming, P, i, r)   <span class="c"># max spare_j(r)</span>
+                <span class="kw">if</span> j &lt; 0: <span class="kw">break</span>
+                k = min(left, cap)
+                plan.append((i, j, r, k))
+                x[i][r] -= k; incoming[j][r] += k; left -= k
+    <span class="c"># step 6: top up shortfalls, oldest sendable first</span>
+    <span class="kw">return</span> fill_shortfalls(x, P, range(2, P.life + 1), plan, incoming)</pre>
+  </div>
+  <p class="note">The excerpt folds the receiver search into <code>best_receiver</code> for space; in <code>policies.py</code> it is an inline loop over <code>spare_capacity</code>.</p>
+  <div class="gallery">
+    <figure><img src="img/network.gif" alt="Animated network: no transfers on the left, age-aware on the right" loading="lazy"><figcaption>network.gif: periods 40–63, π₀ (left) vs π₂ (right). Generated by viz.animate_network.</figcaption></figure>
+    <figure><img src="img/stock_age.png" alt="Stacked area of stock by periods left over time" loading="lazy"><figcaption>stock_age.png: stock by life left. π₀ wastes every period; π₂ rarely does.</figcaption></figure>
+    <figure><img src="img/delay_sweep.png" alt="Cost per unit demand against information delay" loading="lazy"><figcaption>delay_sweep.png: mean and range over 8 seeds.</figcaption></figure>
+    <figure><img src="img/rates.png" alt="Bar charts of waste, unmet demand and cost" loading="lazy"><figcaption>rates.png: default settings, seed 7.</figcaption></figure>
+  </div>
+</section>
+
+<section id="formal">
+  <details class="formal"><summary>Formal statement and references</summary>
+    <div class="in">
+      <div class="eq">min<sub><i>π</i></sub> 𝔼[ ∑<sub><i>t</i></sub> ∑<sub><i>i</i></sub> ( <i>h</i>·<i>w</i><sub><i>i,t</i></sub> + <i>p</i>·<i>b</i><sub><i>i,t</i></sub> ) + ∑<sub><i>t,i,j,r</i></sub> <i>c</i>·<i>u</i><sub><i>ij,t</i></sub>(<i>r</i>) ]&nbsp; s.t.&nbsp; ∑<sub><i>j</i></sub> <i>u</i><sub><i>ij,t</i></sub>(<i>r</i>) ≤ <i>x</i><sub><i>i,t</i></sub>(<i>r</i>),&nbsp; <i>u</i><sub><i>t</i></sub> = <i>π</i>(<i>x</i><sub><i>t</i>−<i>δ</i></sub>)</div>
+      <p class="note">A stochastic dynamic program with state dimension N·L. With δ &gt; 0 it is partially observable. The age-aware policy is a greedy approximation to the per-period two-stage stochastic program.</p>
+      <ol class="refs">
+        <li>S. Nahmias. Perishable inventory theory: a review. <i>Operations Research</i> 30(4), 1982.</li>
+        <li>Inventory sharing for perishable products. <i>Operations Research</i> 71(5):1756–1776, 2023. <a href="https://pubsonline.informs.org/doi/10.1287/opre.2022.2410" target="_blank" rel="noopener">doi:10.1287/opre.2022.2410</a></li>
+        <li>Dehghani et al. Proactive transshipment: a stochastic programming approach, 2019. <a href="https://research.aalto.fi/en/publications/proactive-transshipment-in-the-blood-supply-chain-a-stochastic-pr/" target="_blank" rel="noopener">Aalto record</a></li>
+        <li>C. Papadimitriou, J. Tsitsiklis. The complexity of Markov decision processes. <i>Math. of Operations Research</i> 12(3), 1987.</li>
+        <li>P. O'Neil. The escrow transactional method. <i>ACM TODS</i> 11(4), 1986.</li>
+        <li>A. Angelopoulos, S. Bates. A gentle introduction to conformal prediction. <a href="https://arxiv.org/abs/2107.07511" target="_blank" rel="noopener">arXiv:2107.07511</a></li>
+      </ol>
+    </div>
+  </details>
+</section>
+
+</div>
+
+<script>
+(function(){
+const $=id=>document.getElementById(id);
+const NS='http://www.w3.org/2000/svg';
+const reduce=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* SIM-CORE-START (mirrored by age_aware_prototype/perishnet; keep in sync) */
+function rngOf(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+function pois(l,r){ if(l<=0) return 0; if(l<30){const e=Math.exp(-l);let k=0,p=1;do{k++;p*=r();}while(p>e);return k-1;}
+  const u=r()||1e-12,v=r(); return Math.max(0,Math.round(l+Math.sqrt(l)*Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v))); }
+function pq(l,beta){ if(l<=0) return 0; let k=0,p=Math.exp(-l),c=p; while(c<beta && k<10000){k++;p*=l/k;c+=p;} return k; }
+const BASE=[6,4,2.5,1.5,1,0.8];
+function params(cfg){
+  const P=Object.assign({h:1,T:365},cfg);
+  P.lam=BASE.slice(0,P.N); const Lam=P.lam.reduce((a,b)=>a+b,0);
+  P.sig=P.lam.map((l,i)=>P.rho*((1-P.m)*l+(i===0?P.m*Lam:0)));
+  P.beta=P.p/(P.p+P.h); P.target=P.lam.map(l=>pq(2*l,P.beta));
+  return P;
+}
+function streams(P){ const r=rngOf(P.seed*7919+13); const S=[],D=[];
+  for(let i=0;i<P.N;i++){S.push([]);D.push([]);}
+  for(let t=0;t<P.T;t++) for(let i=0;i<P.N;i++){ S[i].push(pois(P.sig[i],r)); D[i].push(pois(P.lam[i],r)); }
+  return {S,D}; }
+function fill(x,P,order,plan,inc){
+  const N=P.N, sum=v=>v.reduce((a,b)=>a+b,0);
+  inc=inc||x.map(v=>new Array(v.length).fill(0));
+  const tot=x.map(v=>sum(v)-v[1]);
+  const all=x.map((v,i)=>sum(v)+sum(inc[i]));
+  const sur=[],def=[];
+  for(let i=0;i<N;i++){ const s=all[i]-P.target[i]; if(s>0) sur.push([i,Math.min(s,tot[i])]); else if(s<0) def.push([i,-s]); }
+  def.sort((a,b)=>b[1]-a[1]);
+  for(const d of def){ let need=d[1];
+    sur.sort((a,b)=>b[1]-a[1]);
+    for(const s of sur){ if(need<=0) break; let give=Math.min(need,s[1]); if(give<=0) continue;
+      for(const a of order){ if(give<=0) break; const n=Math.min(give,x[s[0]][a]); if(n>0){ plan.push([s[0],d[0],a,n]); x[s[0]][a]-=n; inc[d[0]][a]+=n; give-=n; need-=n; s[1]-=n; } } } }
+  return plan;
+}
+function atRisk(v,lam,L){ const r=new Array(L+1).fill(0); let used=0; for(let a=1;a<=L;a++){ const cap=Math.max(0,Math.floor(lam*a)-used); const take=Math.min(v[a],cap); r[a]=v[a]-take; used+=take; } return r; }
+const POL=[
+  function none(){ return []; },
+  function count(obs,P){ const x=obs.map(v=>v.slice()); const ord=[]; for(let a=P.L;a>=2;a--) ord.push(a); return fill(x,P,ord,[]); },
+  function age(obs,P){ const x=obs.map(v=>v.slice()), N=P.N, L=P.L, plan=[], inc=obs.map(v=>new Array(v.length).fill(0));
+    const risk=x.map((v,i)=>atRisk(v,P.lam[i],L));
+    const cap=(j,a)=>{ let s=0; for(let b=1;b<=a;b++) s+=x[j][b]+inc[j][b]; return Math.floor(P.lam[j]*a)-s; };
+    for(let a=2;a<=L;a++) for(let i=0;i<N;i++){ let r=risk[i][a];
+      while(r>0){ let bj=-1,bc=0; for(let j=0;j<N;j++){ if(j===i) continue; const c=cap(j,a); if(c>bc){bc=c;bj=j;} }
+        if(bj<0) break; const n=Math.min(r,bc); plan.push([i,bj,a,n]); x[i][a]-=n; inc[bj][a]+=n; r-=n; } }
+    const ord=[]; for(let a=2;a<=L;a++) ord.push(a);
+    return fill(x,P,ord,plan,inc); }
+];
+function simulate(P,st,pol,keep){
+  const N=P.N,L=P.L; let inv=[]; for(let i=0;i<N;i++) inv.push(new Array(L+1).fill(0));
+  let transit=[]; const hist=[]; let waste=0,short=0,sup=0,dem=0,moved=0,conf=0,cum=0; const series=[], trace=[];
+  for(let t=0;t<P.T;t++){
+    for(const tr of transit) inv[tr[0]][tr[1]]+=tr[2]; transit=[];
+    for(let i=0;i<N;i++){ inv[i][L]+=st.S[i][t]; sup+=st.S[i][t]; }
+    const start=inv.map(v=>v.slice());
+    hist.push(start); if(hist.length>P.delta+1) hist.shift();
+    const plan=pol(hist[0],P); let mv=0; const done=[];
+    for(const [i,j,a,n] of plan){ const k=Math.min(n,inv[i][a]); conf+=n-k; if(k>0){ inv[i][a]-=k; transit.push([j,a,k]); done.push([i,j,a,k]); mv+=k; } }
+    moved+=mv; let sh=0; const un=new Array(N).fill(0), wv=new Array(N).fill(0);
+    for(let i=0;i<N;i++){ let d=st.D[i][t]; dem+=d; for(let a=1;a<=L&&d>0;a++){ const k=Math.min(d,inv[i][a]); inv[i][a]-=k; d-=k; } un[i]=d; sh+=d; }
+    short+=sh; let wt=0;
+    for(let i=0;i<N;i++){ wt+=inv[i][1]; wv[i]+=inv[i][1]; for(let a=1;a<L;a++) inv[i][a]=inv[i][a+1]; inv[i][L]=0; }
+    transit=transit.filter(tr=>{ tr[1]-=1; if(tr[1]<=0){ wt+=tr[2]; wv[tr[0]]+=tr[2]; return false; } return true; });
+    waste+=wt; cum+=P.h*wt+P.p*sh+P.c*mv; series.push(cum);
+    if(keep) trace.push({start,tr:done,sup:st.S.map(s=>s[t]),dem:st.D.map(d=>d[t]),un,w:wv,end:inv.map(v=>v.slice()),cum,mv,sh,wt});
+  }
+  return {waste,short,sup,dem,moved,conf,cost:cum,series,trace};
+}
+/* SIM-CORE-END */
+
+/* ---------- helpers ---------- */
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function hex(c){ c=c.replace('#',''); if(c.length===3) c=c.split('').map(x=>x+x).join(''); const n=parseInt(c,16); return [n>>16&255,n>>8&255,n&255]; }
+function mix(a,b,f){ return a.map((v,i)=>Math.round(v+(b[i]-v)*f)); }
+function lifeRGB(r,L,pal){ const f=L<=1?1:(r-1)/(L-1); return f<.5?mix(pal.l1,pal.l2,f*2):mix(pal.l2,pal.l3,(f-.5)*2); }
+const rgba=(c,a)=>`rgba(${c[0]},${c[1]},${c[2]},${a==null?1:a})`;
+function palette(){ return {l1:hex(css('--life1')),l2:hex(css('--life2')),l3:hex(css('--life3')),ink:css('--ink'),ink2:css('--ink-2'),muted:css('--muted'),grid:css('--grid'),panel:css('--panel'),bg:css('--bg'),accent:css('--accent'),waste:css('--waste'),short:css('--short')}; }
+let PAL=palette();
+if(window.matchMedia) matchMedia('(prefers-color-scheme: dark)').addEventListener?.('change',()=>{PAL=palette();redrawAll();});
+new MutationObserver(()=>{PAL=palette();redrawAll();}).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+function niceMax(v){ if(v<=0) return 1; const e=Math.pow(10,Math.floor(Math.log10(v))); for(const m of [1,1.2,1.5,2,2.5,3,4,5,6,8,10]) if(m*e>=v) return m*e; return 10*e; }
+function normInv(p){ if(p<=0) return -8; if(p>=1) return 8; const q=p<.5?p:1-p, t=Math.sqrt(-2*Math.log(q));
+  const z=t-(2.515517+0.802853*t+0.010328*t*t)/(1+1.432788*t+0.189269*t*t+0.001308*t*t*t); return p<.5?-z:z; }
+const PN=['π₀','π₁','π₂'], PNAME=['π₀ no transfers','π₁ balance counts','π₂ age-aware'], COLS=['var(--s1)','var(--s2)','var(--s3)'];
+
+/* ---------- svg line chart ---------- */
+function chart(svg,series,o){
+  while(svg.firstChild) svg.removeChild(svg.firstChild);
+  const W=640,H=260,ml=52,mr=14,mt=12,mb=36,iw=W-ml-mr,ih=H-mt-mb;
+  let ymax=0; series.forEach(s=>s.pts.forEach(p=>{ if(p[1]>ymax) ymax=p[1]; })); ymax=niceMax(ymax*1.05);
+  const X=x=>ml+(x-o.xmin)/(o.xmax-o.xmin||1)*iw, Y=y=>mt+ih-(y/ymax)*ih;
+  const el=(n,a,st)=>{const e=document.createElementNS(NS,n); for(const k in a) e.setAttribute(k,a[k]); if(st) e.setAttribute('style',st); svg.appendChild(e); return e;};
+  for(let k=0;k<=4;k++){ const y=ymax*k/4; el('line',{x1:ml,x2:W-mr,y1:Y(y),y2:Y(y)},'stroke:var(--grid)'); const t=el('text',{x:ml-6,y:Y(y)+4,'text-anchor':'end'}); t.textContent=o.yfmt(y); }
+  const xt=o.xticks||5; for(let k=0;k<=xt;k++){ const x=o.xmin+(o.xmax-o.xmin)*k/xt; const t=el('text',{x:X(x),y:H-mb+16,'text-anchor':'middle'}); t.textContent=o.xfmt?o.xfmt(x):Math.round(x); }
+  const xl=el('text',{x:ml+iw/2,y:H-4,'text-anchor':'middle'}); xl.textContent=o.xlabel;
+  if(o.vline!=null) el('line',{x1:X(o.vline),x2:X(o.vline),y1:mt,y2:mt+ih},'stroke:var(--accent);stroke-dasharray:3 4;opacity:.7');
+  series.forEach(s=>{ const d=s.pts.map((p,i)=>(i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1)).join(' ');
+    el('path',{d},'fill:none;stroke:'+s.c+';stroke-width:2;stroke-linejoin:round');
+    if(s.dots) s.pts.forEach(p=>el('circle',{cx:X(p[0]),cy:Y(p[1]),r:3},'fill:'+s.c));
+    const e=s.pts[s.pts.length-1]; el('circle',{cx:X(e[0]),cy:Y(e[1]),r:3.5},'fill:'+s.c); });
+}
+
+/* ---------- state ---------- */
+let P, RES=[], tNow=30, phase=0, playing=!reduce, speed=1, last=0, peak=1;
+function cfg(){ return {N:+$('sb-n').value,L:+$('sb-L').value,rho:+$('sb-rho').value,m:+$('sb-m').value,delta:+$('sb-d').value,p:+$('sb-p').value,c:+$('sb-c').value,seed:+$('sb-seed').value}; }
+function rerun(){
+  const c=cfg();
+  $('sb-no').textContent=c.N; $('sb-Lo').textContent=c.L; $('sb-rhoo').textContent=c.rho.toFixed(2); $('sb-mo').textContent=c.m.toFixed(2);
+  $('sb-do').textContent=c.delta; $('sb-po').textContent=c.p; $('sb-co').textContent=c.c.toFixed(2); $('sb-seedo').textContent=c.seed;
+  P=params(c); const st=streams(P); RES=POL.map(f=>simulate(P,st,f,true));
+  peak=1; RES.forEach(r=>r.trace.forEach(p=>p.start.forEach(v=>{ const s=v.reduce((a,b)=>a+b,0); if(s>peak) peak=s; })));
+  RES.forEach(r=>{ let w=0,u=0,m=0; r.cw=[];r.cu=[];r.cm=[]; r.trace.forEach(p=>{w+=p.wt;u+=p.sh;m+=p.mv;r.cw.push(w);r.cu.push(u);r.cm.push(m);}); });
+  $('scrub').max=P.T-1; if(tNow>P.T-1) tNow=P.T-1;
+  results(); kpis(); sweep(); heat(); costEx(); drawFrame();
+}
+
+/* ---------- network canvas ---------- */
+function fit(cv){ const r=cv.getBoundingClientRect(), d=window.devicePixelRatio||1; const w=Math.max(280,Math.round(r.width)), h=Math.round(w*11/16);
+  if(cv.width!==Math.round(w*d)||cv.height!==Math.round(h*d)){ cv.width=Math.round(w*d); cv.height=Math.round(h*d); }
+  const ctx=cv.getContext('2d'); ctx.setTransform(d,0,0,d,0,0); return {ctx,w,h}; }
+function layout(N,w,h){ const cx=w/2, cy=h/2+10, R=Math.min(w*0.36,h*0.36); const lm=Math.max(...P.lam), s=Math.min(w,h)/440;
+  return P.lam.map((l,i)=>{ const ang=Math.PI-2*Math.PI*i/N; return {x:cx+R*Math.cos(ang), y:cy-R*0.88*Math.sin(ang), rad:(26+26*Math.sqrt(l/lm))*s}; }); }
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)), ease=f=>f<.5?2*f*f:1-Math.pow(-2*f+2,2)/2;
+function bez(a,b,f,bend){ const mx=(a.x+b.x)/2,my=(a.y+b.y)/2, nx=-(b.y-a.y)*bend, ny=(b.x-a.x)*bend, cx=mx+nx, cy=my+ny;
+  return {x:(1-f)*(1-f)*a.x+2*(1-f)*f*cx+f*f*b.x, y:(1-f)*(1-f)*a.y+2*(1-f)*f*cy+f*f*b.y, cx, cy}; }
+function drawNet(cv,res){
+  const {ctx,w,h}=fit(cv); const N=P.N, L=P.L, rec=res.trace[tNow], pos=layout(N,w,h), ph=phase;
+  ctx.clearRect(0,0,w,h); ctx.fillStyle=PAL.bg; ctx.fillRect(0,0,w,h);
+  ctx.font='11px "IBM Plex Mono", ui-monospace, monospace'; ctx.textBaseline='middle';
+  // edges
+  ctx.strokeStyle=PAL.grid; ctx.lineWidth=1;
+  for(let i=0;i<N;i++) for(let j=i+1;j<N;j++){ ctx.beginPath(); ctx.moveTo(pos[i].x,pos[i].y); ctx.lineTo(pos[j].x,pos[j].y); ctx.stroke(); }
+  // active transfer arcs
+  const acc=hex(PAL.accent);
+  rec.tr.forEach(([i,j,a,k])=>{ const A=pos[i],B=pos[j], q=bez(A,B,.5,.16);
+    ctx.strokeStyle=rgba(acc,ph<.15?ph/.15*.45:.45); ctx.lineWidth=1+Math.min(5,k*0.6);
+    ctx.beginPath(); ctx.moveTo(A.x,A.y); ctx.quadraticCurveTo(q.cx,q.cy,B.x,B.y); ctx.stroke(); });
+  // nodes
+  pos.forEach((p,i)=>{
+    ctx.fillStyle=PAL.panel; ctx.strokeStyle=PAL.muted; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.arc(p.x,p.y,p.rad,0,7); ctx.fill(); ctx.stroke();
+    const stock=ph<.62?rec.start[i]:rec.end[i];
+    const bw=p.rad*0.62, hmax=p.rad*1.35, base=p.y+p.rad*0.68; let y=base, tot=0;
+    for(let r=1;r<=L;r++){ const k=stock[r]; if(!k) continue; tot+=k; const hh=hmax*k/peak;
+      ctx.fillStyle=rgba(lifeRGB(r,L,PAL)); ctx.fillRect(p.x-bw/2,y-hh,bw,Math.max(1,hh-0.6)); y-=hh; }
+    ctx.fillStyle=PAL.ink; ctx.textAlign='left'; ctx.fillText(String(tot),p.x+bw/2+4,base-6);
+    ctx.fillStyle=PAL.muted; ctx.textAlign='center'; ctx.fillText('node '+(i+1)+' · λ='+P.lam[i],p.x,p.y-p.rad-11);
+  });
+  // supply arrivals
+  if(ph<.18){ const f=ease(ph/.18); pos.forEach((p,i)=>{ const n=Math.min(rec.sup[i],5); for(let d=0;d<n;d++){
+    const x=p.x+(d-(n-1)/2)*7, y0=p.y-p.rad-36, y1=p.y-p.rad*0.2; ctx.fillStyle=rgba(lifeRGB(L,L,PAL),1-f*0.6);
+    ctx.beginPath(); ctx.arc(x,y0+(y1-y0)*f,3.2,0,7); ctx.fill(); } }); }
+  // moving items
+  if(ph>=.15&&ph<.62){ const g=(ph-.15)/.47; rec.tr.forEach(([i,j,a,k])=>{ const A=pos[i],B=pos[j], n=Math.min(k,6);
+    for(let d=0;d<n;d++){ const f=ease(clamp(g*1.35-d*0.07,0,1)); const q=bez(A,B,f,.16);
+      ctx.fillStyle=rgba(lifeRGB(Math.max(1,a-1),L,PAL)); ctx.strokeStyle=PAL.panel; ctx.lineWidth=1.2;
+      ctx.beginPath(); ctx.arc(q.x,q.y,4.2,0,7); ctx.fill(); ctx.stroke(); }
+    const q=bez(A,B,.5,.16); ctx.fillStyle=PAL.accent; ctx.textAlign='center'; ctx.fillText('×'+k,q.cx*0.5+q.x*0.5,q.cy*0.5+q.y*0.5-9); }); }
+  // demand served + unmet
+  if(ph>=.55){ const f=clamp((ph-.55)/.25,0,1); const ink=hex(PAL.ink.startsWith('#')?PAL.ink:'#121816');
+    pos.forEach((p,i)=>{ const served=rec.dem[i]-rec.un[i], n=Math.min(served,5);
+      if(f<1) for(let d=0;d<n;d++){ const ang=Math.PI*0.25+d*0.18; const rr=p.rad+f*26;
+        ctx.fillStyle=rgba(ink,0.55*(1-f)); ctx.beginPath(); ctx.arc(p.x+Math.cos(ang)*rr,p.y+Math.sin(ang)*rr,2.8,0,7); ctx.fill(); }
+      if(rec.un[i]>0){ const pulse=1+0.08*Math.sin(ph*30); ctx.strokeStyle=PAL.short; ctx.lineWidth=2.6; ctx.globalAlpha=Math.min(1,f*1.5);
+        ctx.beginPath(); ctx.arc(p.x,p.y,(p.rad+5)*pulse,0,7); ctx.stroke(); ctx.globalAlpha=1;
+        ctx.fillStyle=PAL.short; ctx.textAlign='center'; ctx.fillText(rec.un[i]+' unmet',p.x,p.y+p.rad+14); } }); }
+  // waste
+  if(ph>=.72){ const f=clamp((ph-.72)/.28,0,1); pos.forEach((p,i)=>{ if(!rec.w[i]) return;
+    ctx.globalAlpha=1-f*0.5; ctx.fillStyle=PAL.waste; ctx.textAlign='left'; ctx.font='bold 12px "IBM Plex Mono", ui-monospace, monospace';
+    ctx.fillText('✕'+rec.w[i]+' wasted',p.x+p.rad*0.75,p.y+p.rad*0.75+f*10); ctx.globalAlpha=1; ctx.font='11px "IBM Plex Mono", ui-monospace, monospace'; }); }
+  // period stamp
+  ctx.fillStyle=PAL.muted; ctx.textAlign='left'; ctx.fillText('period '+tNow,10,14);
+}
+function counters(el,res){ const r=res.trace[tNow];
+  el.innerHTML=`<span>cost so far <b>${Math.round(r.cum)}</b></span><span class="w">wasted <b>${res.cw[tNow]}</b></span><span class="u">unmet <b>${res.cu[tNow]}</b></span><span>moved <b>${res.cm[tNow]}</b></span>`; }
+function drawFrame(){
+  const a=+$('pol-a').value, b=+$('pol-b').value;
+  drawNet($('cv-a'),RES[a]); drawNet($('cv-b'),RES[b]); counters($('ct-a'),RES[a]); counters($('ct-b'),RES[b]);
+  $('scrub').value=tNow; $('tlabel').textContent='period '+tNow;
+}
+function loop(ts){
+  if(playing){ const dt=last?Math.min(100,ts-last):16; phase+=dt/(1300/speed);
+    if(phase>=1){ phase=0; tNow=(tNow+1)%P.T; costEx(); } drawFrame(); }
+  last=ts; requestAnimationFrame(loop);
+}
+$('play').textContent=playing?'Pause':'Play';
+if(reduce) phase=0.99;
+$('play').addEventListener('click',()=>{ playing=!playing; $('play').textContent=playing?'Pause':'Play'; });
+$('stepf').addEventListener('click',()=>{ tNow=Math.min(P.T-1,tNow+1); phase=0.99; costEx(); drawFrame(); });
+$('stepb').addEventListener('click',()=>{ tNow=Math.max(0,tNow-1); phase=0.99; costEx(); drawFrame(); });
+$('speed').addEventListener('change',e=>speed=+e.target.value);
+$('scrub').addEventListener('input',e=>{ tNow=+e.target.value; phase=0.99; costEx(); drawFrame(); });
+['pol-a','pol-b'].forEach(id=>$(id).addEventListener('change',()=>{ drawFrame(); heat(); costEx(); }));
+['sb-n','sb-L','sb-rho','sb-m','sb-d','sb-p','sb-c','sb-seed'].forEach(id=>$(id).addEventListener('input',rerun));
+window.addEventListener('resize',()=>{ drawFrame(); heat(); });
+
+/* ---------- kpis, table, charts ---------- */
+function kpis(){ const r0=RES[0], r2=RES[2]; const cut=100*(1-r2.cost/Math.max(1e-9,r0.cost));
+  $('kpis').innerHTML=`<div class="kpi"><b>${cut.toFixed(0)}%</b><span>lower total cost, π₂ vs π₀</span></div>
+   <div class="kpi"><b>${(100*r0.waste/Math.max(1,r0.sup)).toFixed(0)}% → ${(100*r2.waste/Math.max(1,r2.sup)).toFixed(0)}%</b><span>of supply wasted</span></div>
+   <div class="kpi"><b>${(100*r0.short/Math.max(1,r0.dem)).toFixed(0)}% → ${(100*r2.short/Math.max(1,r2.dem)).toFixed(1)}%</b><span>of demand unmet</span></div>
+   <div class="kpi"><b>${r2.conf}</b><span>conflicts under π₂ (δ = ${P.delta})</span></div>`; }
+function results(){ const best=RES.reduce((b,r,k)=>r.cost<RES[b].cost?k:b,0);
+  $('res').innerHTML=RES.map((r,k)=>`<tr class="${k===best?'best':''}"><td><span class="sw" style="--c:${COLS[k]}"></span>${PNAME[k]}</td>
+   <td class="n" style="color:var(--waste)">${(100*r.waste/Math.max(1,r.sup)).toFixed(1)}%</td><td class="n" style="color:var(--short)">${(100*r.short/Math.max(1,r.dem)).toFixed(1)}%</td>
+   <td class="n">${(r.moved/P.T).toFixed(2)}</td><td class="n">${r.conf}</td><td class="n"><b>${(r.cost/Math.max(1,r.dem)).toFixed(3)}</b></td></tr>`).join('');
+  const step=3; chart($('cum-svg'),RES.map((r,k)=>({c:COLS[k],pts:r.series.map((v,t)=>[t,v]).filter(p=>p[0]%step===0||p[0]===P.T-1)})),
+    {xmin:0,xmax:P.T-1,xlabel:'period',xticks:6,yfmt:y=>y>=1000?(y/1000).toFixed(1)+'k':Math.round(y),vline:tNow}); }
+const SW={delta:{vals:[0,1,2,3,4,5,6],lab:'information delay δ',f:x=>Math.round(x)},m:{vals:[0,.1,.2,.3,.4,.5,.6,.7,.8,.9,1],lab:'supply share on node 1, m',f:x=>x.toFixed(1)},
+  L:{vals:[2,3,4,5,6,8,10,12],lab:'life L',f:x=>Math.round(x)},rho:{vals:[.7,.8,.9,1,1.1,1.2,1.3,1.4,1.5,1.6],lab:'supply ÷ demand ρ',f:x=>x.toFixed(1)}};
+function sweep(){ const key=$('sw-x').value, cf=SW[key], base=cfg(), ys=[[],[],[]];
+  for(const v of cf.vals){ const acc=[0,0,0]; for(const s of [1,2,3,4]){ const Q=params(Object.assign({},base,{[key]:v,seed:s})); const st=streams(Q);
+      POL.forEach((f,k)=>{ const r=simulate(Q,st,f,false); acc[k]+=r.cost/Math.max(1,r.dem); }); }
+    acc.forEach((a,k)=>ys[k].push([v,a/4])); }
+  chart($('sw-svg'),ys.map((pts,k)=>({pts,c:COLS[k],dots:true})),{xmin:cf.vals[0],xmax:cf.vals[cf.vals.length-1],xlabel:cf.lab+' → cost per unit demand',xticks:Math.min(cf.vals.length-1,6),xfmt:cf.f,yfmt:y=>y.toFixed(2)});
+  const g=ys[0].map((p,i)=>p[1]>0?100*(p[1]-ys[2][i][1])/p[1]:0);
+  $('sw-note').textContent=`π₂ is ${Math.min(...g).toFixed(0)}% to ${Math.max(...g).toFixed(0)}% cheaper than π₀ across this sweep (4 seeds per point).`; }
+$('sw-x').addEventListener('change',sweep);
+function heat1(cv,res){ const r=cv.getBoundingClientRect(), d=window.devicePixelRatio||1, w=Math.max(280,Math.round(r.width)), h=96;
+  cv.width=w*d; cv.height=h*d; const ctx=cv.getContext('2d'); ctx.setTransform(d,0,0,d,0,0); ctx.fillStyle=PAL.bg; ctx.fillRect(0,0,w,h);
+  const L=P.L, T=P.T, ml=30, cw=(w-ml)/T, rh=h/L; let mx=1;
+  res.trace.forEach(p=>{ for(let a=1;a<=L;a++){ let s=0; p.start.forEach(v=>s+=v[a]); if(s>mx) mx=s; } });
+  res.trace.forEach((p,t)=>{ for(let a=1;a<=L;a++){ let s=0; p.start.forEach(v=>s+=v[a]); if(!s) continue;
+    ctx.fillStyle=rgba(lifeRGB(a,L,PAL),0.15+0.85*s/mx); ctx.fillRect(ml+t*cw,(L-a)*rh,Math.ceil(cw),rh-1); } });
+  ctx.fillStyle=PAL.muted; ctx.font='10px "IBM Plex Mono", monospace'; ctx.textAlign='right'; ctx.textBaseline='middle';
+  ctx.fillText(L+' left',ml-4,rh/2); ctx.fillText('1 left',ml-4,h-rh/2);
+  ctx.strokeStyle=PAL.accent; ctx.setLineDash([3,3]); ctx.beginPath(); ctx.moveTo(ml+tNow*cw,0); ctx.lineTo(ml+tNow*cw,h); ctx.stroke(); ctx.setLineDash([]); }
+function heat(){ const a=+$('pol-a').value, b=+$('pol-b').value; $('hm-a-l').textContent=PNAME[a]; $('hm-b-l').textContent=PNAME[b]; heat1($('hm-a'),RES[a]); heat1($('hm-b'),RES[b]); }
+
+/* ---------- step widgets ---------- */
+function costEx(){ if(!RES.length) return; const k=+$('pol-a').value, r=RES[k].trace[tNow];
+  $('cost-ex').innerHTML=`${PN[k]}, period ${tNow}: &nbsp;cost = ${P.h}·${r.wt} + ${P.p}·${r.sh} + ${P.c}·${r.mv} = <b>${(P.h*r.wt+P.p*r.sh+P.c*r.mv).toFixed(1)}</b>`; }
+// belt
+(function(){ const L=5, r=rngOf(99); let x=[0,0,2,3,4,4,4], used=[], wasted=0;
+  function render(){ const pal=PAL; let html='';
+    for(let a=L;a>=1;a--){ let blocks=''; for(let k=0;k<x[a];k++) blocks+=`<i style="background:${rgba(lifeRGB(a,L,pal))}"></i>`;
+      for(let k=0;k<(used[a]||0);k++) blocks+=`<i class="gone" style="background:${rgba(lifeRGB(a,L,pal))}"></i>`;
+      html+=`<div class="slot"><div class="col">${blocks}</div><span>${a} left<br>x=${x[a]}</span></div>`; }
+    let wb=''; for(let k=0;k<Math.min(wasted,12);k++) wb+='<i></i>';
+    html+=`<div class="slot bin"><div class="col">${wb}</div><span>wasted<br>${wasted}</span></div>`; $('belt').innerHTML=html; }
+  function tick(){ const d=pois(3,r), s=pois(3.4,r); let left=d; used=[];
+    for(let a=1;a<=L&&left>0;a++){ const k=Math.min(left,x[a]); x[a]-=k; used[a]=k; left-=k; }
+    const w=x[1]; wasted=w; const nx=[0]; for(let a=1;a<L;a++) nx[a]=x[a+1]; nx[L]=s; x=nx;
+    $('belt-msg').textContent=`demand ${d}${left?` (${left} unmet)`:''}, ${w} expired, ${s} new items arrived at “5 left”`;
+    render(); }
+  render(); $('belt-msg').textContent='Press “Next period” or wait: oldest are used first, then every slot shifts right.';
+  $('belt-next').addEventListener('click',tick); if(!reduce) setInterval(tick,2600); })();
+// target
+function target(){ const l=+$('tg-l').value, p=+$('tg-p').value, beta=p/(p+1), mu=2*l, sd=Math.sqrt(mu), z=normInv(beta), sn=mu+z*sd, se=pq(mu,beta);
+  $('tg-lo').textContent=l; $('tg-po').textContent=p;
+  const svg=$('tg-svg'); while(svg.firstChild) svg.removeChild(svg.firstChild);
+  const W=560,H=210,ml=30,mb=30,mt=10, kmax=Math.ceil(mu+4.5*sd), pm=[Math.exp(-mu)]; for(let k=1;k<=kmax;k++) pm[k]=pm[k-1]*mu/k;
+  const ymax=Math.max(...pm)*1.1, bw=(W-ml-10)/(kmax+1), Y=v=>H-mb-(v/ymax)*(H-mb-mt);
+  const el=(n,a,st)=>{const e=document.createElementNS(NS,n); for(const k in a) e.setAttribute(k,a[k]); if(st) e.setAttribute('style',st); svg.appendChild(e); return e;};
+  el('line',{x1:ml,x2:W-10,y1:H-mb,y2:H-mb},'stroke:var(--grid)');
+  pm.forEach((v,k)=>el('rect',{x:ml+k*bw+1,y:Y(v),width:Math.max(1,bw-2),height:H-mb-Y(v)},'fill:'+(k<=se?'var(--accent)':'var(--grid)')));
+  const xs=ml+(sn+0.5)*bw; el('line',{x1:xs,x2:xs,y1:mt,y2:H-mb},'stroke:var(--short);stroke-dasharray:4 3;stroke-width:1.5');
+  const xm=ml+(mu+0.5)*bw; el('line',{x1:xm,x2:xm,y1:mt,y2:H-mb},'stroke:var(--muted);stroke-dasharray:2 3');
+  const step=Math.max(1,Math.ceil(kmax/10)); for(let k=0;k<=kmax;k+=step){ const t=el('text',{x:ml+(k+0.5)*bw,y:H-mb+14,'text-anchor':'middle'}); t.textContent=k; }
+  const tl=el('text',{x:W-12,y:H-4,'text-anchor':'end'}); tl.textContent='demand over two periods';
+  const t1=el('text',{x:xs+4,y:mt+10}); t1.textContent='μ+zσ'; t1.setAttribute('style','fill:var(--short)');
+  $('tg-out').innerHTML=`β = ${p}/(${p}+1) = ${beta.toFixed(3)}, &nbsp;z = ${z.toFixed(2)}, &nbsp;μ = ${mu}, &nbsp;σ = ${sd.toFixed(2)} &nbsp;⇒&nbsp; s ≈ ${mu} + ${z.toFixed(2)}×${sd.toFixed(2)} = ${sn.toFixed(1)} &nbsp;(exact Poisson: <b>${se}</b>)`; }
+['tg-l','tg-p'].forEach(id=>$(id).addEventListener('input',target));
+// buckets + neighbour
+function bucket(){ const lam=+$('bk-l').value, x=[0,+$('bk-1').value||0,+$('bk-2').value||0,+$('bk-3').value||0].map(v=>Math.max(0,Math.min(15,Math.round(v)))), L=3;
+  $('bk-lo').textContent=lam; const risk=atRisk(x,lam,L);
+  const svg=$('bk-svg'); while(svg.firstChild) svg.removeChild(svg.firstChild);
+  const el=(n,a,st)=>{const e=document.createElementNS(NS,n); for(const k in a) e.setAttribute(k,a[k]); if(st) e.setAttribute('style',st); svg.appendChild(e); return e;};
+  const sq=13, gap=3, colW=180, base=170; let used=0; const lines=[];
+  for(let r=1;r<=L;r++){ const room=Math.max(0,Math.floor(lam*r)-used), safe=Math.min(x[r],room), cx=10+(r-1)*colW;
+    const t=el('text',{x:cx,y:16}); t.textContent=`r = ${r}: room = ⌊${lam}×${r}⌋ − ${used} = ${room}`;
+    for(let k=0;k<room;k++){ const row=Math.floor(k/5), col=k%5; el('rect',{x:cx+col*(sq+gap),y:base-(row+1)*(sq+gap),width:sq,height:sq,rx:2},'fill:none;stroke:var(--muted);stroke-dasharray:2 2'); }
+    const lc=rgba(lifeRGB(r,L,PAL));
+    for(let k=0;k<safe;k++){ const row=Math.floor(k/5), col=k%5; el('rect',{x:cx+col*(sq+gap),y:base-(row+1)*(sq+gap),width:sq,height:sq,rx:2},'fill:'+lc); }
+    for(let k=0;k<risk[r];k++){ const row=Math.floor(k/3), col=k%3; el('rect',{x:cx+96+col*(sq+gap),y:base-(row+1)*(sq+gap),width:sq,height:sq,rx:2},'fill:'+lc+';stroke:var(--short);stroke-width:2'); }
+    const b=el('text',{x:cx,y:base+16}); b.textContent=`bucket: ${safe} safe`;
+    if(risk[r]){ const rt=el('text',{x:cx+96,y:base+16}); rt.textContent=`${risk[r]} at risk`; rt.setAttribute('style','fill:var(--short)'); }
+    lines.push(`r=${r}: safe ${safe}, risk ${risk[r]}`); used+=safe; }
+  const lg=el('text',{x:10,y:218}); lg.textContent='dashed = room in the bucket, filled = items, red outline = overflow (at risk)';
+  $('bk-out').innerHTML=lines.join(' &nbsp;·&nbsp; ')+(risk[1]?` &nbsp;·&nbsp; the ${risk[1]} with r = 1 cannot move`:'');
+  neighbour(risk); }
+function neighbour(risk){ risk=risk||atRisk([0,+$('bk-1').value||0,+$('bk-2').value||0,+$('bk-3').value||0],+$('bk-l').value,3);
+  const lj=+$('nb-l').value, h3=Math.max(0,+$('nb-x').value||0); $('nb-lo').textContent=lj;
+  const sp2=Math.floor(lj*2)-0, sp3=Math.floor(lj*3)-h3;
+  const send2=Math.min(risk[2],Math.max(0,sp2)), send3=Math.min(risk[3],Math.max(0,sp3-send2*0));
+  $('nb-out').innerHTML=`spare<sub>j</sub>(2) = ⌊${lj}×2⌋ − 0 = <b>${sp2}</b> &nbsp;·&nbsp; spare<sub>j</sub>(3) = ⌊${lj}×3⌋ − ${h3} = <b>${sp3}</b><br>`+
+    `At-risk from step 4: ${risk[2]} with 2 left, ${risk[3]} with 3 left. &nbsp;Send <b>${send2}</b> with 2 left and <b>${Math.min(risk[3],Math.max(0,sp3-send2))}</b> with 3 left`+
+    ` (the second count is recalculated after the first move, because items with 2 left also take room in the r = 3 bucket).`; }
+['bk-l','bk-1','bk-2','bk-3'].forEach(id=>$(id).addEventListener('input',bucket));
+['nb-l','nb-x'].forEach(id=>$(id).addEventListener('input',()=>neighbour()));
+
+function redrawAll(){ if(!RES.length) return; drawFrame(); heat(); target(); bucket(); }
+rerun(); target(); bucket(); requestAnimationFrame(loop);
+})();
+</script>

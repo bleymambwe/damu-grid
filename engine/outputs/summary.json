@@ -1,0 +1,26 @@
+{
+  "none": {
+    "waste_rate": 0.38828671328671327,
+    "unmet_rate": 0.31970917665553156,
+    "moved": 0,
+    "conflicts": 0,
+    "cost": 10356.0,
+    "cost_per_demand": 2.0349774022401257
+  },
+  "count": {
+    "waste_rate": 0.12255244755244755,
+    "unmet_rate": 0.020436235016702692,
+    "moved": 1596,
+    "conflicts": 0,
+    "cost": 1699.7999999999988,
+    "cost_per_demand": 0.3340145411672232
+  },
+  "age": {
+    "waste_rate": 0.11241258741258742,
+    "unmet_rate": 0.011790135586559246,
+    "moved": 2117,
+    "conflicts": 0,
+    "cost": 1578.100000000001,
+    "cost_per_demand": 0.31010021615248595
+  }
+}

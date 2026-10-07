@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M16 3c5 7 9 12 9 17a9 9 0 0 1-18 0c0-5 4-10 9-17z' fill='%23e5484d'/%3E%3C/svg%3E">
+<title>Perishable Network Policy Research</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* layout: verdict (the answer) -> results by setting (chart + table) -> overview heatmap -> literature map by field -> policy classes -> method & limits -> roadmap -> references */
+:root{
+  --bg:#f6f7f5; --panel:#ffffff; --ink:#121816; --ink-2:#4a5450; --muted:#7f8884; --grid:#e2e6e3; --border:rgba(18,24,22,.11);
+  --accent:#0d6b63; --accent-soft:#e2f0ee; --waste:#a86a00; --short:#bf3a2b; --ok:#2c7a3a; --info:#2a6fc4;
+  --f-math:"STIX Two Text","Cambria Math",Cambria,Georgia,serif;
+  --f-ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  color-scheme:dark; --bg:#0d1110; --panel:#151b19; --ink:#e8eeeb; --ink-2:#b4bfba; --muted:#8a9590; --grid:#26302c; --border:rgba(255,255,255,.10);
+  --accent:#4dbfb2; --accent-soft:#12302c; --waste:#e2a83c; --short:#ef7a6a; --ok:#6cc47a; --info:#6fa8ef;}}
+:root[data-theme="dark"]{
+  color-scheme:dark; --bg:#0d1110; --panel:#151b19; --ink:#e8eeeb; --ink-2:#b4bfba; --muted:#8a9590; --grid:#26302c; --border:rgba(255,255,255,.10);
+  --accent:#4dbfb2; --accent-soft:#12302c; --waste:#e2a83c; --short:#ef7a6a; --ok:#6cc47a; --info:#6fa8ef;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.6;margin:0}
+.wrap{max-width:1160px;margin:0 auto;padding-inline:16px;padding-block:26px 72px}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.2}
+h1{font-family:var(--f-math);font-weight:600;font-size:clamp(1.9rem,4.4vw,2.6rem)}
+h2{font-family:var(--f-math);font-weight:600;font-size:1.45rem}
+h3{font-weight:600;font-size:1rem}
+p{margin:0}
+.lbl{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{color:var(--ink-2);max-width:72ch}
+.m{font-family:var(--f-math);font-size:1.06em}
+section{display:grid;gap:16px;padding-block:28px;border-top:1px solid var(--grid)}
+section>header{display:grid;gap:6px}
+.note{font-size:.8rem;color:var(--muted)}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+.verdict{background:var(--panel);border:1px solid var(--accent);border-radius:12px;padding:18px;display:grid;gap:14px}
+.verdict .big{font-family:var(--f-math);font-size:clamp(1.15rem,2.4vw,1.45rem);line-height:1.4;max-width:62ch}
+.pipeline{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.pipeline>div{flex:1 1 180px;background:var(--accent-soft);border-radius:8px;padding:10px 12px;display:grid;gap:4px;align-content:start;min-width:0}
+.pipeline b{font-family:var(--f-math);font-size:1.05rem}
+.pipeline span{font-size:.84rem;color:var(--ink-2)}
+.pipeline .arrow{flex:0 0 auto;background:none;align-self:center;color:var(--accent);font-size:1.3rem;padding:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.kpi{border-left:2px solid var(--accent);padding-left:10px;display:grid}
+.kpi b{font-family:var(--f-math);font-size:1.5rem;font-weight:600}
+.kpi span{font-size:.78rem;color:var(--muted)}
+
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tab{font:500 .84rem var(--f-ui);background:var(--panel);color:var(--ink-2);border:1px solid var(--border);border-radius:999px;padding:5px 12px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px;display:grid;gap:10px;align-content:start;min-width:0}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+.chart text.lab{fill:var(--ink);font-family:var(--f-ui);font-size:12px}
+.tablewrap{overflow-x:auto;border:1px solid var(--border);border-radius:8px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th,td{padding:8px 12px;border-bottom:1px solid var(--grid);text-align:left;vertical-align:top}
+th{font:500 .7rem var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+td.n,th.n{text-align:right;font-family:var(--f-mono);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tr.best td{background:var(--accent-soft)}
+table.res{min-width:780px}
+table.heat{min-width:640px}
+table.heat td.h{text-align:center;font-family:var(--f-mono);white-space:nowrap}
+.pill{display:inline-block;font:500 .68rem var(--f-mono);text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.pill.impl{color:var(--ok)} .pill.design{color:var(--info)} .pill.no{color:var(--muted)}
+
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.field{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:grid;gap:10px;align-content:start;min-width:0}
+.field .idea{font-size:.9rem;color:var(--ink-2)}
+.field ul{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.field li{display:grid;gap:3px;font-size:.86rem;border-top:1px solid var(--grid);padding-top:8px}
+.field li .ref{color:var(--ink)}
+.field li .ref a{color:var(--ink);text-decoration-color:var(--muted)}
+.field li .ref a:hover{color:var(--accent)}
+.field li .use{color:var(--ink-2)}
+.classes{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.classes>div{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 14px;display:grid;gap:6px;align-content:start}
+.classes b{font-family:var(--f-math);font-size:1.15rem;color:var(--accent)}
+.classes p{font-size:.86rem;color:var(--ink-2)}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.g2>*{min-width:0}
+ul.clean{margin:0;padding-left:1.1em;display:grid;gap:6px;font-size:.92rem;color:var(--ink-2)}
+ul.clean li::marker{color:var(--accent)}
+ol.refs{margin:0;padding-left:1.5em;display:grid;gap:5px;font-size:.84rem;color:var(--ink-2)}
+ol.refs a{word-break:break-word}
+</style>
+
+</head>
+<body>
+<nav class="dg-nav" aria-label="Damu Grid pages"><a class="dg-home" href="./">← Damu Grid live demo</a>
+<a href="method.html">How it works</a><a href="evidence.html" aria-current="page">Evidence</a>
+<a href="https://github.com/bleymambwe/damu-grid" target="_blank" rel="noopener">Code</a></nav>
+<style>.dg-nav{display:flex;flex-wrap:wrap;gap:4px 16px;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border, #ccc);
+background:var(--panel, #fff);font:500 14px "IBM Plex Sans",system-ui,sans-serif;position:sticky;top:0;z-index:5}
+.dg-nav a{color:var(--ink-2, #444);text-decoration:none} .dg-nav a:hover,.dg-nav a[aria-current]{color:var(--ink, #111)}
+.dg-nav .dg-home{color:var(--accent, #0d6b63);font-weight:600;margin-right:auto}</style>
+<div class="wrap">
+<div style="display:grid;gap:10px;padding-block:4px 20px">
+  <div class="lbl">Research synthesis · operations research · stochastic control · networks · quantitative finance</div>
+  <h1>Perishable Network Policy Research</h1>
+  <p class="lede">Which policy best moves decaying, single-use items around a network under random demand and delayed information? This report surveys eight research fields, implements one representative method from each that fits, and tests them all on the same held-out random futures against a perfect-information lower bound.</p>
+</div>
+
+<!-- VERDICT -->
+<div class="verdict" id="verdict">
+  <div class="lbl">Answer</div>
+  <p class="big" id="verdict-text">Loading benchmark results…</p>
+  <div class="pipeline">
+    <div><span class="lbl">Layer 1 · estimate state</span><b>Nowcast</b><span>Roll the delayed snapshot forward through known dynamics using a conservative (high-quantile) demand estimate. Control theory: Smith predictor.</span></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div><span class="lbl">Layer 2 · decide</span><b id="v-decide">Scenario lookahead LP</b><span id="v-decide-s">Re-solve a small two-stage sample-average LP every period. Fall back to the age-aware rule if the solver is unavailable or slow.</span></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div><span class="lbl">Layer 3 · guarantee</span><b>Quota reservations</b><span>Each node commits only its own escrow quota, so a stale view can never double-allocate an item. Databases: escrow method.</span></div>
+  </div>
+  <div class="kpis" id="v-kpis"></div>
+</div>
+
+<!-- RESULTS -->
+<section id="results">
+  <header><div class="lbl">Benchmark</div><h2>Cost per unit of demand on held-out futures</h2>
+  <p class="lede" id="res-lede"></p></header>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <div class="card chart"><svg id="bars" viewBox="0 0 760 360" role="img" aria-label="Cost per unit demand by policy with confidence intervals"></svg>
+    <p class="note">Bars: mean over test seeds, whiskers: 95% interval. Dashed line: perfect-information bound (nobody can beat it). π₀ (no transfers) is left off the chart because it is 5 to 10 times higher; it is in the table.</p></div>
+  <div class="tablewrap"><table class="res"><thead><tr><th>Policy</th><th class="n">Cost / demand</th><th class="n">Gap to bound</th><th class="n">vs π₂ (paired)</th><th class="n">Wasted</th><th class="n">Unmet</th><th class="n">Moved / period</th><th class="n">Conflicts / run</th></tr></thead><tbody id="res-body"></tbody></table></div>
+</section>
+
+<section id="overview">
+  <header><div class="lbl">Overview</div><h2>Gap to the perfect-information bound, every setting</h2>
+  <p class="lede">Lower is better. The bound assumes the whole future is known, so even an optimal real policy sits well above it; read gaps comparatively, not as distance from true optimality.</p></header>
+  <div class="tablewrap"><table class="heat"><thead id="heat-head"></thead><tbody id="heat-body"></tbody></table></div>
+  <div class="g2">
+    <div class="card"><h3>What the numbers say</h3><ul class="clean" id="findings"></ul></div>
+    <div class="card"><h3>Settings tested</h3><ul class="clean" id="settings"></ul><p class="note" id="design-note"></p></div>
+  </div>
+</section>
+
+<!-- LITERATURE -->
+<section id="literature">
+  <header><div class="lbl">Literature map</div><h2>Eight fields, one problem</h2>
+  <p class="lede">Each field has solved a version of this problem under another name. The pill says what happened to the idea here: implemented and benchmarked, used to shape the design, or deliberately not pursued.</p></header>
+  <div class="fields">
+
+    <div class="field"><span class="lbl">Operations research · perishable inventory</span>
+      <p class="idea">Perishability makes the state an age vector and kills closed-form answers, but simple structured rules come close to optimal.</p>
+      <ul>
+        <li><span class="ref">Nahmias. <i>Perishable inventory theory: a review.</i> Operations Research 30(4), 1982.</span><span class="use">Establishes the age-vector state and why exact DP fails beyond tiny cases.</span><span><span class="pill design">Shapes design</span></span></li>
+        <li><span class="ref"><a href="https://research.wur.nl/en/publications/blood-platelet-production-optimization-by-dynamic-programming-and/" target="_blank" rel="noopener">Haijema, van der Wal, van Dijk. Optimization by dynamic programming and simulation.</a> Computers &amp; OR 34(3), 2007.</span><span class="use">Solves the MDP on a real case and finds a two-level order-up-to rule (young stock, total stock) is nearly optimal. Evidence that a good rule-based policy can be near the true optimum.</span><span><span class="pill design">Shapes design</span></span></li>
+        <li><span class="ref"><a href="https://ideas.repec.org/a/eee/ejores/v217y2012i1p1-16.html" target="_blank" rel="noopener">Beliën &amp; Forcé. Supply chain management of blood products: a literature review.</a> EJOR 217(1), 2012.</span> <span class="ref"><a href="https://ideas.repec.org/a/taf/tprsxx/v53y2015i24p7191-7212.html" target="_blank" rel="noopener">Osorio, Brailsford &amp; Smith. A structured review of quantitative models.</a> IJPR 53(24), 2015.</span><span class="use">Domain surveys: transshipment and inventory are the most-studied stages; integrated network models are rarer.</span><span><span class="pill design">Shapes design</span></span></li>
+      </ul></div>
+
+    <div class="field"><span class="lbl">Operations research · lateral transshipment</span>
+      <p class="idea">Moving stock sideways between same-level locations, either proactively on a schedule or reactively when one runs out.</p>
+      <ul>
+        <li><span class="ref"><a href="https://ideas.repec.org/a/eee/ejores/v210y2011i2p125-136.html" target="_blank" rel="noopener">Paterson, Kiesmüller, Teunter &amp; Glazebrook. Inventory models with lateral transhipments: a review.</a> EJOR 210, 2011.</span><span class="use">The proactive/reactive taxonomy. Every policy here is proactive and periodic.</span><span><span class="pill design">Shapes design</span></span></li>
+        <li><span class="ref"><a href="https://pubsonline.informs.org/doi/10.1287/opre.2022.2410" target="_blank" rel="noopener">Inventory sharing for perishable products.</a> Operations Research 71(5), 2023.</span><span class="use">Two-site MDP: the optimal transfer direction depends only on which site holds the older oldest unit. About 20% fewer expiries in practice. The basis of the age-aware rescue step.</span><span><span class="pill impl">Implemented · π₂</span></span></li>
+        <li><span class="ref"><a href="https://ideas.repec.org/a/eee/proeco/v198y2018icp93-103.html" target="_blank" rel="noopener">Dehghani &amp; Abbasi. An age-based lateral-transshipment policy for perishable items.</a> IJPE 198, 2018.</span><span class="use">Transfer when the oldest unit crosses an age threshold; tuning the threshold cut cost about 61% in their case. Motivates tuning π₂’s constants.</span><span><span class="pill impl">Implemented · π₂ᵗ</span></span></li>
+        <li><span class="ref"><a href="https://research.aalto.fi/en/publications/proactive-transshipment-in-the-blood-supply-chain-a-stochastic-pr/" target="_blank" rel="noopener">Dehghani et al. Proactive transshipment: a stochastic programming approach,</a> 2019.</span><span class="use">Network-wide proactive transfers chosen by stochastic programming beat reactive rules on both shortage and waste.</span><span><span class="pill impl">Implemented · SAA</span></span></li>
+      </ul></div>
+
+    <div class="field"><span class="lbl">Stochastic programming</span>
+      <p class="idea">Replace the unknown future by sampled scenarios, optimise now-decisions against all of them, re-solve as information arrives.</p>
+      <ul>
+        <li><span class="ref">Kleywegt, Shapiro &amp; Homem-de-Mello. <a href="https://edoc.hu-berlin.de/18452/8871" target="_blank" rel="noopener">The sample average approximation method for stochastic discrete optimization.</a> SIAM J. Optim. 12(2), 2002.</span><span class="use">SAA solutions converge to the true optimum as scenarios grow; gives the statistical basis for the lookahead LP.</span><span><span class="pill impl">Implemented · SAA</span></span></li>
+        <li><span class="ref"><a href="https://arxiv.org/abs/1802.06192" target="_blank" rel="noopener">Bumpensanti &amp; Wang. A re-solving heuristic with uniformly bounded loss for network revenue management,</a> 2018/2020.</span><span class="use">Re-solving a simple LP repeatedly can keep the loss against the optimum bounded by a constant. Supports a rolling re-solve.</span><span><span class="pill impl">Implemented · rolling re-solve</span></span></li>
+        <li><span class="ref">Rockafellar &amp; Wets. Scenarios and policy aggregation in optimization under uncertainty. Math. of OR 16, 1991.</span><span class="use">Progressive hedging decomposes large multistage scenario problems by scenario. The route to scale SAA to many nodes.</span><span><span class="pill no">Not needed at this size</span></span></li>
+      </ul></div>
+
+    <div class="field"><span class="lbl">Sequential decisions · reinforcement learning</span>
+      <p class="idea">Learn a policy or value function from simulated experience instead of solving the model.</p>
+      <ul>
+        <li><span class="ref"><a href="https://castle.princeton.edu/RLSO/" target="_blank" rel="noopener">Powell. Reinforcement Learning and Stochastic Optimization: a unified framework,</a> Wiley 2022. <a href="https://arxiv.org/abs/1912.03513" target="_blank" rel="noopener">arXiv:1912.03513</a></span><span class="use">Every policy is one of four classes (below). Used to organise the candidates and the tuning protocol.</span><span><span class="pill design">Shapes design</span></span></li>
+        <li><span class="ref"><a href="https://ciencia.ucp.pt/en/publications/can-deep-reinforcement-learning-improve-inventory-management-perf/" target="_blank" rel="noopener">Gijsbrechts, Boute, Van Mieghem &amp; Zhang. Can deep reinforcement learning improve inventory management?</a> MSOM 24(3), 2022.</span><span class="use">A3C matches, but does not clearly beat, the best heuristics on lost-sales, dual-sourcing and multi-echelon problems, after heavy tuning.</span><span><span class="pill no">Not pursued yet</span></span></li>
+        <li><span class="ref"><a href="https://ideas.repec.org/a/eee/ejores/v301y2022i2p535-545.html" target="_blank" rel="noopener">De Moor, Gijsbrechts &amp; Boute. Reward shaping to improve deep RL in perishable inventory management.</a> EJOR 301(2), 2022.</span><span class="use">Shaping rewards with a good heuristic stabilises DQN training on perishables. The natural way to try RL here: shape with π₂.</span><span><span class="pill no">Roadmap</span></span></li>
+        <li><span class="ref"><a href="https://arxiv.org/abs/2410.18631" target="_blank" rel="noopener">Kotecha &amp; del Rio Chanona. Graph neural networks and multi-agent RL for inventory control,</a> 2024.</span><span class="use">GNN state encoding fits the network structure; agents tune parameters of heuristic policies rather than raw actions.</span><span><span class="pill no">Roadmap</span></span></li>
+      </ul></div>
+
+    <div class="field"><span class="lbl">Networks · queueing</span>
+      <p class="idea">Route flow by local pressure differences; stability guarantees without knowing arrival rates.</p>
+      <ul>
+        <li><span class="ref">Tassiulas &amp; Ephremides. Stability properties of constrained queueing systems and scheduling policies for maximum throughput. IEEE TAC 37(12), 1992.</span><span class="use">Backpressure: send along the link with the largest queue difference. Throughput-optimal, rate-free. Its “equalise pressure” logic is what the band policy does with periods of cover.</span><span><span class="pill impl">Implemented · band</span></span></li>
+        <li><span class="ref">Neely. <a href="https://en.wikipedia.org/wiki/Drift_plus_penalty" target="_blank" rel="noopener">Stochastic Network Optimization</a> (drift-plus-penalty), 2010; Neely &amp; Huang, <a href="https://arxiv.org/abs/1004.0479" target="_blank" rel="noopener">Dynamic product assembly and inventory control for maximum profit</a>.</span><span class="use">Gives cost within O(1/V) of optimal with O(V) backlog, without forecasts. Strong theory for non-perishables; the guarantee does not carry over directly once items expire.</span><span><span class="pill design">Shapes design</span></span></li>
+        <li><span class="ref">Time-expanded networks and dynamic min-cost flow (Ford &amp; Fulkerson tradition).</span><span class="use">Copy each node per period and per age; transfers and ageing become arcs. This is exactly the structure of the LP used for SAA and for the bound.</span><span><span class="pill impl">Implemented · LP</span></span></li>
+      </ul></div>
+
+    <div class="field"><span class="lbl">Control · estimation under delay</span>
+      <p class="idea">When measurements arrive late, predict the present state from the model before you act.</p>
+      <ul>
+        <li><span class="ref">O. J. M. Smith. Closer control of loops with dead time, 1957 (Smith predictor); Kalman filtering.</span><span class="use">Run the plant model forward over the delay and control on the prediction. The nowcast layer is this idea with a conservative demand quantile.</span><span><span class="pill impl">Implemented · nowcast</span></span></li>
+        <li><span class="ref"><a href="https://arxiv.org/abs/2210.12123" target="_blank" rel="noopener">Optimal estimation with sensor delay,</a> 2022.</span><span class="use">The optimal estimator with delayed measurements reduces to a predictor plus a reduced-order Kalman filter. A route to a probabilistic nowcast.</span><span><span class="pill no">Roadmap</span></span></li>
+      </ul></div>
+
+    <div class="field"><span class="lbl">Quantitative finance · risk</span>
+      <p class="idea">Rebalancing a portfolio with trading costs is rebalancing stock with transfer costs.</p>
+      <ul>
+        <li><span class="ref">Davis &amp; Norman. Portfolio selection with transaction costs. Math. of OR 15(4), 1990; <a href="https://arxiv.org/abs/1207.7330" target="_blank" rel="noopener">user’s guide, arXiv:1207.7330</a>.</span><span class="use">Optimal policy: do nothing inside a no-trade band, trade only to its edge. Implemented as a band on periods of cover after the rescue step.</span><span><span class="pill impl">Implemented · band</span></span></li>
+        <li><span class="ref">Rockafellar &amp; Uryasev. Optimization of conditional value-at-risk. J. of Risk 2(3), 2000.</span><span class="use">CVaR of shortage adds linearly to the scenario LP. Use it if the goal is to protect the worst days rather than the average.</span><span><span class="pill design">Optional extension</span></span></li>
+        <li><span class="ref"><a href="https://arxiv.org/abs/1505.05116" target="_blank" rel="noopener">Mohajerin Esfahani &amp; Kuhn. Data-driven DRO using the Wasserstein metric.</a> Math. Programming 171, 2018.</span><span class="use">Optimise against the worst distribution near the observed data, with finite-sample guarantees. Useful once demand rates are estimated from little data.</span><span><span class="pill design">Optional extension</span></span></li>
+      </ul></div>
+
+    <div class="field"><span class="lbl">Learning · evaluation</span>
+      <p class="idea">Learn the demand model while acting, and know how far from optimal you are.</p>
+      <ul>
+        <li><span class="ref"><a href="https://arxiv.org/abs/2502.09900" target="_blank" rel="noopener">Thompson sampling for repeated newsvendor,</a> 2025.</span><span class="use">Gamma-prior Thompson sampling learns demand with near-optimal regret under censored sales. Drop-in for unknown λ.</span><span><span class="pill no">Roadmap</span></span></li>
+        <li><span class="ref"><a href="https://arxiv.org/abs/1402.5481" target="_blank" rel="noopener">Bertsimas &amp; Kallus. From predictive to prescriptive analytics.</a> Management Science 66(3), 2020.</span><span class="use">Weight historical scenarios by similarity to today’s features; plugs straight into the SAA scenarios.</span><span><span class="pill no">Roadmap</span></span></li>
+        <li><span class="ref"><a href="https://jimsmith.host.dartmouth.edu/wp-content/uploads/2022/04/Information_Relaxations_and_Duality_in_Stochastic_Dynamic_Programs.pdf" target="_blank" rel="noopener">Brown, Smith &amp; Sun. Information relaxations and duality in stochastic dynamic programs.</a> Operations Research 58(4), 2010.</span><span class="use">Perfect-information LP = valid lower bound for any real policy. Adding a penalty for using future information would tighten it.</span><span><span class="pill impl">Implemented · bound</span></span></li>
+      </ul></div>
+  </div>
+</section>
+
+<section id="classes">
+  <header><div class="lbl">Organising frame</div><h2>Powell’s four policy classes, mapped to the candidates</h2></header>
+  <div class="classes">
+    <div><b>PFA</b><span class="lbl">policy function approximation</span><p>A rule with tunable constants: π₁, π₂, tuned π₂ᵗ, band + rescue. Fast and explainable; quality depends on the rule’s structure.</p></div>
+    <div><b>CFA</b><span class="lbl">cost function approximation</span><p>A simplified optimisation with tuned modifications: the terminal penalty θ in the lookahead LP is a CFA term.</p></div>
+    <div><b>VFA</b><span class="lbl">value function approximation</span><p>Learn the value of future states: deep RL, approximate DP. Not implemented; the literature shows it matches good heuristics only after heavy tuning.</p></div>
+    <div><b>DLA</b><span class="lbl">direct lookahead</span><p>Plan explicitly over sampled futures: the SAA lookahead, re-solved each period.</p></div>
+  </div>
+</section>
+
+<section id="method">
+  <header><div class="lbl">Method and limits</div><h2>How to read these results</h2></header>
+  <div class="g2">
+    <div class="card"><h3>Protocol</h3><ul class="clean">
+      <li>Same simulator as the dashboard and the Python package (identical random numbers in both).</li>
+      <li>Constants for π₂ᵗ, band, SAA and nowcast are tuned on training seeds only, then frozen.</li>
+      <li>All policies face the same held-out futures (common random numbers), so paired differences remove most of the noise.</li>
+      <li>Perfect-information bound: a full-horizon LP per future, solved with HiGHS. Its LP relaxation keeps it a valid lower bound.</li>
+    </ul></div>
+    <div class="card"><h3>Limits</h3><ul class="clean">
+      <li>Demand and supply rates are known to every policy. Real systems must estimate them; that will widen every gap.</li>
+      <li>One-period transfer time, uniform transfer cost, complete network.</li>
+      <li>The bound is loose because perfect foresight is very valuable. A gap of 50% does not mean 50% is recoverable.</li>
+      <li>The lookahead LP needs roughly 0.1 s per decision here; fine per period, but grows with nodes × ages × scenarios.</li>
+      <li>Deep RL was not trained, so “not better” is not shown for it; the literature suggests parity with strong heuristics.</li>
+    </ul></div>
+  </div>
+</section>
+
+<section id="roadmap">
+  <header><div class="lbl">Next experiments</div><h2>Where the remaining gap might be</h2></header>
+  <ul class="clean">
+    <li><b>Probabilistic nowcast.</b> Replace the fixed demand quantile with a Kalman-style predicted distribution, and feed it to the lookahead as scenarios.</li>
+    <li><b>Learned demand.</b> Gamma–Poisson Thompson sampling per node, then feature-weighted scenarios (Bertsimas &amp; Kallus).</li>
+    <li><b>Tighter bound.</b> Add an information-relaxation penalty to show how much of the gap is real.</li>
+    <li><b>RL on top of the best rule.</b> Train an agent with π₂ as the reward-shaping potential, or let it tune the band and θ online.</li>
+    <li><b>Risk.</b> Add CVaR of shortage to the LP if worst-day protection matters more than the average.</li>
+  </ul>
+</section>
+
+<section id="refs">
+  <header><div class="lbl">Artefacts</div><h2>Reproduce</h2></header>
+  <pre style="margin:0;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;font:12.5px/1.6 var(--f-mono)">cd damu-grid/engine
+python -m perishnet.benchmark --out outputs/benchmark     # tunes, evaluates, writes results.json
+python -m pytest -q                                       # 35 tests</pre>
+  <p class="note" id="meta-note"></p>
+</section>
+</div>
+
+<script id="bench" type="application/json">{"summary": {"A0": [{"spec": ["none"], "cpd": 2.0242279825838843, "cpd_ci": 0.025447361074306927, "gap": 9.040991719674397, "gap_ci": 0.3558379563348558, "vs_age": 1.7200490874007, "vs_age_ci": 0.02687420184748292, "waste_rate": 0.37551602499179115, "unmet_rate": 0.32221787132810115, "moved_per_t": 0.0, "conflicts": 0.0}, {"spec": ["count"], "cpd": 0.33240006902014896, "cpd_ci": 0.009251249933363988, "gap": 0.646690559469684, "gap_ci": 0.05983512301331905, "vs_age": 0.028221173836964614, "vs_age_ci": 0.006386157237125597, "waste_rate": 0.1060513116194017, "unmet_rate": 0.02429168197231741, "moved_per_t": 4.395479452054794, "conflicts": 0.0}, {"spec": ["age"], "cpd": 0.30417889518318436, "cpd_ci": 0.009655466459041542, "gap": 0.5060199681308296, "gap_ci": 0.05571929167566947, "vs_age": 0.0, "vs_age_ci": 0.0, "waste_rate": 0.09634466690568763, "unmet_rate": 0.01483727125398018, "moved_per_t": 5.783424657534246, "conflicts": 0.0}, {"spec": ["age_t", 1.0, 0.95], "cpd": 0.3256595081630754, "cpd_ci": 0.009208476794217414, "gap": 0.612787554098843, "gap_ci": 0.0556685608425739, "vs_age": 0.02148061297989103, "vs_age_ci": 0.0061433687030267746, "waste_rate": 0.09977050538854265, "unmet_rate": 0.01887552744389992, "moved_per_t": 5.667671232876712, "conflicts": 0.0}, {"spec": ["band", 0.5], "cpd": 0.33931706990924615, "cpd_ci": 0.009161529341207638, "gap": 0.6804443477754509, "gap_ci": 0.056670046050965775, "vs_age": 0.035138174726061774, "vs_age_ci": 0.005354278369754514, "waste_rate": 0.09783766428233401, "unmet_rate": 0.015373949982062676, "moved_per_t": 7.2217808219178075, "conflicts": 0.0}, {"spec": ["saa", 3, 16, 0.0], "cpd": 0.29916787254853905, "cpd_ci": 0.006930609356646126, "gap": 0.4813564251900481, "gap_ci": 0.043720096779393515, "vs_age": -0.005011022634645307, "vs_age_ci": 0.005509176981742654, "waste_rate": 0.09006038453562638, "unmet_rate": 0.007868030658225807, "moved_per_t": 7.499452054794521, "conflicts": 0.0}, {"spec": ["bound"], "cpd": 0.20262547011827364, "cpd_ci": 0.007084906431158222}], "A2": [{"spec": ["none"], "cpd": 2.0242279825838843, "cpd_ci": 0.025447361074306927, "gap": 9.040991719674397, "gap_ci": 0.3558379563348558, "vs_age": 1.3718725941179861, "vs_age_ci": 0.028080185755543413, "waste_rate": 0.37551602499179115, "unmet_rate": 0.32221787132810115, "moved_per_t": 0.0, "conflicts": 0.0}, {"spec": ["count"], "cpd": 0.5890688590014967, "cpd_ci": 0.014620154020981957, "gap": 1.9196332024829066, "gap_ci": 0.10820536245725974, "vs_age": -0.06328652946440125, "vs_age_ci": 0.020767991163038953, "waste_rate": 0.14311965712011515, "unmet_rate": 0.0652765210710843, "moved_per_t": 4.908356164383561, "conflicts": 264.05}, {"spec": ["age"], "cpd": 0.652355388465898, "cpd_ci": 0.021080756000505237, "gap": 2.232266341424726, "gap_ci": 0.1317893281233402, "vs_age": 0.0, "vs_age_ci": 0.0, "waste_rate": 0.14729702944779471, "unmet_rate": 0.07000092967172729, "moved_per_t": 6.545205479452055, "conflicts": 1619.05}, {"spec": ["age_t", 1.0, 0.95], "cpd": 0.6904675782864382, "cpd_ci": 0.018157048031026708, "gap": 2.423193828803967, "gap_ci": 0.13684165917365262, "vs_age": 0.03811218982054021, "vs_age_ci": 0.020407491004806457, "waste_rate": 0.15427170647329652, "unmet_rate": 0.07782773963392653, "moved_per_t": 6.138767123287671, "conflicts": 1566.55}, {"spec": ["band", 0.5], "cpd": 0.6779102332101817, "cpd_ci": 0.020189807111466476, "gap": 2.358777162416198, "gap_ci": 0.12756366406643146, "vs_age": 0.02555484474428372, "vs_age_ci": 0.020341461519591927, "waste_rate": 0.14666993609310258, "unmet_rate": 0.06931490283887747, "moved_per_t": 7.931095890410958, "conflicts": 1988.15}, {"spec": ["saa", 3, 16, 0.0], "cpd": 0.5856121607830035, "cpd_ci": 0.016608403309415803, "gap": 1.9015375380845758, "gap_ci": 0.10825593713904945, "vs_age": -0.0667432276828945, "vs_age_ci": 0.024118499787122587, "waste_rate": 0.1342742831204165, "unmet_rate": 0.054971458433132524, "moved_per_t": 7.606301369863014, "conflicts": 1306.3}, {"spec": ["now", 0.85, ["count"]], "cpd": 0.33952394995656954, "cpd_ci": 0.012115007087761137, "gap": 0.6816372589017676, "gap_ci": 0.07100174042453555, "vs_age": -0.3128314385093285, "vs_age_ci": 0.01789242815385149, "waste_rate": 0.10449796647403087, "unmet_rate": 0.02316011885705194, "moved_per_t": 5.071917808219178, "conflicts": 41.65}, {"spec": ["now", 0.85, ["age"]], "cpd": 0.37131725192247356, "cpd_ci": 0.013253174015295587, "gap": 0.8389047707801321, "gap_ci": 0.07665947636434368, "vs_age": -0.2810381365434244, "vs_age_ci": 0.01813521403962588, "waste_rate": 0.105941635149621, "unmet_rate": 0.02465402764264465, "moved_per_t": 6.133424657534246, "conflicts": 17.75}, {"spec": ["now", 0.85, ["age_t", 1.0, 0.95]], "cpd": 0.3604087044184958, "cpd_ci": 0.011833989606324542, "gap": 0.7845193620891215, "gap_ci": 0.06678177590458405, "vs_age": -0.2919466840474022, "vs_age_ci": 0.01849215725092329, "waste_rate": 0.1053229572169411, "unmet_rate": 0.024196314999534133, "moved_per_t": 5.762328767123288, "conflicts": 20.65}, {"spec": ["now", 0.85, ["band", 0.5]], "cpd": 0.3481167685811137, "cpd_ci": 0.012189265746955455, "gap": 0.7234791160892683, "gap_ci": 0.06784676613966441, "vs_age": -0.3042386198847843, "vs_age_ci": 0.01869539135418603, "waste_rate": 0.10105729074735345, "unmet_rate": 0.019107964286329455, "moved_per_t": 6.595753424657533, "conflicts": 25.75}, {"spec": ["now", 0.85, ["saa", 3, 16, 0.0]], "cpd": 0.33954933004343013, "cpd_ci": 0.011761069675139981, "gap": 0.6829487109612256, "gap_ci": 0.0774317743039162, "vs_age": -0.31280605842246795, "vs_age_ci": 0.01786390765979855, "waste_rate": 0.09781783302834021, "unmet_rate": 0.015472094976623343, "moved_per_t": 7.211506849315068, "conflicts": 52.95}, {"spec": ["bound"], "cpd": 0.20262547011827364, "cpd_ci": 0.007084906431158222}], "A4": [{"spec": ["none"], "cpd": 2.0242279825838843, "cpd_ci": 0.025447361074306927, "gap": 9.040991719674397, "gap_ci": 0.3558379563348558, "vs_age": 1.0716839299516139, "vs_age_ci": 0.03623685130881804, "waste_rate": 0.37551602499179115, "unmet_rate": 0.32221787132810115, "moved_per_t": 0.0, "conflicts": 0.0}, {"spec": ["count"], "cpd": 1.0781330675636578, "cpd_ci": 0.029261061146805052, "gap": 4.347602739488577, "gap_ci": 0.22253549840419715, "vs_age": 0.12558901493138747, "vs_age_ci": 0.03364053483225121, "waste_rate": 0.2151305712672403, "unmet_rate": 0.1448052932089288, "moved_per_t": 5.480273972602739, "conflicts": 878.3}, {"spec": ["age"], "cpd": 0.9525440526322704, "cpd_ci": 0.02373857063552876, "gap": 3.7209538933848068, "gap_ci": 0.1728229706027305, "vs_age": 0.0, "vs_age_ci": 0.0, "waste_rate": 0.19302077188385688, "unmet_rate": 0.1203296763289021, "moved_per_t": 6.463013698630137, "conflicts": 2400.2}, {"spec": ["age_t", 1.0, 0.95], "cpd": 0.9464467539260332, "cpd_ci": 0.023242343154876405, "gap": 3.693009565195619, "gap_ci": 0.18302206982094393, "vs_age": -0.006097298706237259, "vs_age_ci": 0.024088091145149246, "waste_rate": 0.19317658201210386, "unmet_rate": 0.12077576088283808, "moved_per_t": 6.066986301369862, "conflicts": 2250.0}, {"spec": ["band", 0.5], "cpd": 0.9742295406609729, "cpd_ci": 0.026687182262157258, "gap": 3.830721653322705, "gap_ci": 0.19466027240934322, "vs_age": 0.02168548802870257, "vs_age_ci": 0.024286538218366436, "waste_rate": 0.19346618751240954, "unmet_rate": 0.12070193237060849, "moved_per_t": 7.366575342465754, "conflicts": 3109.85}, {"spec": ["saa", 3, 16, 0.0], "cpd": 0.8466997668565138, "cpd_ci": 0.022907053007590654, "gap": 3.2028367867210354, "gap_ci": 0.19694917363925232, "vs_age": -0.10584428577575652, "vs_age_ci": 0.032041662720653195, "waste_rate": 0.1758750186256875, "unmet_rate": 0.10078252854085115, "moved_per_t": 6.966849315068494, "conflicts": 2069.75}, {"spec": ["now", 0.85, ["count"]], "cpd": 0.4263433458805566, "cpd_ci": 0.013073300014389638, "gap": 1.1134477327452266, "gap_ci": 0.08998447146602918, "vs_age": -0.5262007067517138, "vs_age_ci": 0.022787873141583464, "waste_rate": 0.11774758485078074, "unmet_rate": 0.03777026509261124, "moved_per_t": 5.035068493150685, "conflicts": 43.75}, {"spec": ["now", 0.85, ["age"]], "cpd": 0.4386447494034438, "cpd_ci": 0.01389769094648031, "gap": 1.1731631607321504, "gap_ci": 0.08745853585539462, "vs_age": -0.5138993032288266, "vs_age_ci": 0.024056162816138812, "waste_rate": 0.11722468138629911, "unmet_rate": 0.037363171056037606, "moved_per_t": 5.730684931506849, "conflicts": 61.85}, {"spec": ["now", 0.85, ["age_t", 1.0, 0.95]], "cpd": 0.37966394831116157, "cpd_ci": 0.012758126606856837, "gap": 0.879707790100618, "gap_ci": 0.07083706804599076, "vs_age": -0.5728801043211089, "vs_age_ci": 0.024921720333250526, "waste_rate": 0.10914210343324171, "unmet_rate": 0.028055119411103946, "moved_per_t": 5.564246575342466, "conflicts": 60.15}, {"spec": ["now", 0.85, ["band", 0.5]], "cpd": 0.3499794944149487, "cpd_ci": 0.012566743238793457, "gap": 0.7318282041505847, "gap_ci": 0.06448329999548316, "vs_age": -0.6025645582173218, "vs_age_ci": 0.02447128357969499, "waste_rate": 0.10406820512532636, "unmet_rate": 0.022383924812796704, "moved_per_t": 5.762465753424658, "conflicts": 64.7}, {"spec": ["now", 0.85, ["saa", 3, 16, 0.0]], "cpd": 0.3549519051711115, "cpd_ci": 0.012696179384826277, "gap": 0.7615878855301442, "gap_ci": 0.09318713588799764, "vs_age": -0.597592147461159, "vs_age_ci": 0.02532036676534569, "waste_rate": 0.10388616450527352, "unmet_rate": 0.021849551257702028, "moved_per_t": 6.13027397260274, "conflicts": 42.55}, {"spec": ["bound"], "cpd": 0.20262547011827364, "cpd_ci": 0.007084906431158222}], "B0": [{"spec": ["none"], "cpd": 5.6299737363458515, "cpd_ci": 0.03556256706456222, "gap": 6.34058761587515, "gap_ci": 0.607654834220786, "vs_age": 3.994877462069618, "vs_age_ci": 0.0628317588293795, "waste_rate": 0.48133658734458235, "unmet_rate": 0.5174592093244843, "moved_per_t": 0.0, "conflicts": 0.0}, {"spec": ["count"], "cpd": 1.3050797148546973, "cpd_ci": 0.0436246926379893, "gap": 0.6831804821866692, "gap_ci": 0.08722568909147715, "vs_age": -0.3300165594215361, "vs_age_ci": 0.01607880729846441, "waste_rate": 0.05515729210250507, "unmet_rate": 0.11204919198573879, "moved_per_t": 6.194794520547945, "conflicts": 0.0}, {"spec": ["age"], "cpd": 1.6350962742762334, "cpd_ci": 0.04209016822189753, "gap": 1.1139262448806844, "gap_ci": 0.12253126528375034, "vs_age": 0.0, "vs_age_ci": 0.0, "waste_rate": 0.08523475354320789, "unmet_rate": 0.14004366649865865, "moved_per_t": 7.207534246575342, "conflicts": 0.0}, {"spec": ["age_t", 1.0, 0.95], "cpd": 1.3580094825159992, "cpd_ci": 0.04491563534824096, "gap": 0.7520403607688902, "gap_ci": 0.09292841175041815, "vs_age": -0.27708679176023404, "vs_age_ci": 0.0107385119934763, "waste_rate": 0.059879668619693925, "unmet_rate": 0.11592849947877001, "moved_per_t": 6.647945205479452, "conflicts": 0.0}, {"spec": ["band", 0.5], "cpd": 1.3235715154487182, "cpd_ci": 0.04193314164364851, "gap": 0.7080684162705292, "gap_ci": 0.09116433002840821, "vs_age": -0.3115247588275153, "vs_age_ci": 0.015136183343178171, "waste_rate": 0.05665366673062104, "unmet_rate": 0.11236019952717598, "moved_per_t": 6.847397260273973, "conflicts": 0.0}, {"spec": ["saa", 3, 16, 0.0], "cpd": 1.2301157498044697, "cpd_ci": 0.047284306783813554, "gap": 0.5841104084599341, "gap_ci": 0.07785297928961826, "vs_age": -0.40498052447176364, "vs_age_ci": 0.015347463097368896, "waste_rate": 0.045307742386761725, "unmet_rate": 0.10129022361491302, "moved_per_t": 8.15931506849315, "conflicts": 0.0}, {"spec": ["bound"], "cpd": 0.7879132532789181, "cpd_ci": 0.05918277534713739}], "B2": [{"spec": ["none"], "cpd": 5.6299737363458515, "cpd_ci": 0.03556256706456222, "gap": 6.34058761587515, "gap_ci": 0.607654834220786, "vs_age": 3.1168140773282578, "vs_age_ci": 0.056922634799765316, "waste_rate": 0.48133658734458235, "unmet_rate": 0.5174592093244843, "moved_per_t": 0.0, "conflicts": 0.0}, {"spec": ["count"], "cpd": 2.9060806711976963, "cpd_ci": 0.04888146448744312, "gap": 2.781384534974863, "gap_ci": 0.2951054049790194, "vs_age": 0.3929210121801029, "vs_age_ci": 0.043356949940555646, "waste_rate": 0.2092236307076992, "unmet_rate": 0.2578847131324724, "moved_per_t": 6.0501369863013705, "conflicts": 1363.05}, {"spec": ["age"], "cpd": 2.5131596590175933, "cpd_ci": 0.04509006969640765, "gap": 2.268347238073654, "gap_ci": 0.2526348732055171, "vs_age": 0.0, "vs_age_ci": 0.0, "waste_rate": 0.1691155780999026, "unmet_rate": 0.2198328971640001, "moved_per_t": 7.2436986301369855, "conflicts": 1419.05}, {"spec": ["age_t", 1.0, 0.95], "cpd": 2.2731495623437263, "cpd_ci": 0.026270918130254454, "gap": 1.9599855613849009, "gap_ci": 0.23513619564923458, "vs_age": -0.24001009667386733, "vs_age_ci": 0.041816434990117245, "waste_rate": 0.14692581536898155, "unmet_rate": 0.19885531097679632, "moved_per_t": 6.808630136986301, "conflicts": 1063.05}, {"spec": ["band", 0.5], "cpd": 2.174910709565571, "cpd_ci": 0.03245174722688617, "gap": 1.8370829234988821, "gap_ci": 0.24370190102840286, "vs_age": -0.33824894945202244, "vs_age_ci": 0.04778669192759988, "waste_rate": 0.13654620998105035, "unmet_rate": 0.1889516734952304, "moved_per_t": 7.304520547945206, "conflicts": 1328.7}, {"spec": ["saa", 3, 16, 0.0], "cpd": 1.9487758224721183, "cpd_ci": 0.03689003172005543, "gap": 1.5349284106177865, "gap_ci": 0.19838362997474407, "vs_age": -0.5643838365454752, "vs_age_ci": 0.04345638049605472, "waste_rate": 0.1118896860480995, "unmet_rate": 0.1655464313096964, "moved_per_t": 8.77041095890411, "conflicts": 782.65}, {"spec": ["now", 0.85, ["count"]], "cpd": 1.8680681856466765, "cpd_ci": 0.03777106896906264, "gap": 1.4201151114161084, "gap_ci": 0.15507599644066908, "vs_age": -0.645091473370917, "vs_age_ci": 0.04163855557217158, "waste_rate": 0.11025034472765446, "unmet_rate": 0.164541920738564, "moved_per_t": 5.536438356164384, "conflicts": 67.4}, {"spec": ["now", 0.85, ["age"]], "cpd": 1.9630752454341305, "cpd_ci": 0.03648489781655802, "gap": 1.5464238729883224, "gap_ci": 0.17377492386144752, "vs_age": -0.5500844135834628, "vs_age_ci": 0.044637378992721306, "waste_rate": 0.11683726151003934, "unmet_rate": 0.1708238848019163, "moved_per_t": 6.7519178082191775, "conflicts": 21.55}, {"spec": ["now", 0.85, ["age_t", 1.0, 0.95]], "cpd": 1.4567568443222012, "cpd_ci": 0.04128581672680047, "gap": 0.8829556754205816, "gap_ci": 0.11085965058029784, "vs_age": -1.0564028146953923, "vs_age_ci": 0.04124140909628129, "waste_rate": 0.06946082457929173, "unmet_rate": 0.12509389040766597, "moved_per_t": 6.554657534246575, "conflicts": 91.85}, {"spec": ["now", 0.85, ["band", 0.5]], "cpd": 1.368081902294175, "cpd_ci": 0.040559308977996165, "gap": 0.766406297097782, "gap_ci": 0.09678706431565345, "vs_age": -1.1450777567234185, "vs_age_ci": 0.04818436004352122, "waste_rate": 0.060851866472383796, "unmet_rate": 0.11704077701353352, "moved_per_t": 6.554520547945206, "conflicts": 79.25}, {"spec": ["now", 0.85, ["saa", 3, 16, 0.0]], "cpd": 1.3080771927617785, "cpd_ci": 0.05505472801536075, "gap": 0.6839320396877377, "gap_ci": 0.08493050320381033, "vs_age": -1.205082466255815, "vs_age_ci": 0.0515658683409392, "waste_rate": 0.053574640211245014, "unmet_rate": 0.1096179891079766, "moved_per_t": 7.545342465753425, "conflicts": 50.0}, {"spec": ["bound"], "cpd": 0.7879132532789181, "cpd_ci": 0.05918277534713739}]}, "settings": {"A0": {"delay": 0}, "A2": {"delay": 2}, "A4": {"delay": 4}, "B0": {"delay": 0, "rho": 0.95, "mismatch": 0.9, "life": 4, "p": 10.0}, "B2": {"delay": 2, "rho": 0.95, "mismatch": 0.9, "life": 4, "p": 10.0}}, "train_seeds": [1, 2, 3, 4, 5, 6], "test_seeds": [101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120], "horizon": 365, "chosen_text": "π₂ᵗ cover 1.0, β 0.95; band b = 0.5; SAA K 3, S 16, θ 0.0; nowcast q 0.85", "verdict": {"text": "Decide on a <b>nowcast<\/b>, not on the stale snapshot; choose transfers with a <b>rolling scenario LP<\/b> (falling back to the age-aware rule); and gate every transfer through <b>sender-side quota leases<\/b>. Across five held-out settings this stack is best or tied-best everywhere, roughly halves cost whenever information is delayed, and makes promising the same unit twice impossible.", "decide": "Scenario lookahead LP", "decide_s": "Re-solve a 3-day, 16-scenario sample-average LP every day at the hub (about 0.1 s). Field devices run the age-aware rule, which ties the LP when data is fresh.", "kpis": [["−48%", "cost vs the age-aware rule with a 2-day data delay (0.340 vs 0.652)"], ["1,619 → 0", "units promised twice per year at a 2-day delay, once nowcast and leases are on"], ["−25%", "cost vs the rule when supply is scarce and lands in one place (1.230 vs 1.635)"], ["48%", "best policy's gap to perfect foresight in the default setting (the bound is loose)"]]}, "findings": ["<b>Fresh information beats a cleverer optimiser.<\/b> With a 2- or 4-day delay, deciding on a nowcast roughly halves every policy's cost (age-aware rule: 0.652 → 0.371 at δ = 2, 0.953 → 0.439 at δ = 4).", "<b>With fresh data the rule and the LP tie.<\/b> 0.304 vs 0.299 per unit of demand; paired difference −0.005 ± 0.006, not significant.", "<b>Scarcity is where optimisation pays.<\/b> When supply is 95% of demand and 90% of it lands in one place, the LP is clearly best (1.230 vs 1.635), and the plain age-aware rule is the weakest coordinated policy.", "<b>Over-tuning backfires.<\/b> Constants tuned on six training futures did worse on unseen futures in the default setting (+0.021 ± 0.006). Keep the rule's constants principled.", "<b>Leases make conflicts impossible.<\/b> Tested separately on 20 seeds: conflicts go to exactly zero. Without a nowcast, leases also cut cost 11–23%; with one they are cost-neutral (within ±2%).", "<b>Headroom remains.<\/b> The best policy is 48–73% above the perfect-foresight bound. That bound is loose, so the recoverable gap is smaller; better demand forecasts are the most likely lever."], "generated": "Benchmark: 900 simulation runs and 40 perfect-information LPs. Page built 2026-10-07."}</script>
+<script>
+(function(){
+const $=id=>document.getElementById(id), NS='http://www.w3.org/2000/svg';
+let B=null; try{ B=JSON.parse($('bench').textContent); }catch(e){}
+if(!B){ $('verdict-text').textContent='Benchmark results are not embedded in this copy of the page.'; return; }
+const SUB='₀₁₂₃₄₅₆₇₈₉';
+function label(sp){ const k=sp[0];
+  if(k==='none') return 'π₀ no transfers'; if(k==='count') return 'π₁ balance counts'; if(k==='age') return 'π₂ age-aware';
+  if(k==='age_t') return `π₂ᵗ tuned (cover ${sp[1]}, β ${sp[2]})`; if(k==='band') return `Band + rescue (b = ${sp[1]})`;
+  if(k==='saa') return `SAA lookahead (K ${sp[1]}, S ${sp[2]}, θ ${sp[3]})`; if(k==='now') return `Nowcast(q ${sp[1]}) → ${label(sp[2])}`;
+  if(k==='bound') return 'Perfect-information bound'; return JSON.stringify(sp); }
+function short(sp){ const k=sp[0]; if(k==='now') return 'Nowcast → '+short(sp[2]);
+  return {none:'π₀',count:'π₁',age:'π₂',age_t:'π₂ᵗ tuned',band:'Band',saa:'SAA lookahead',bound:'Bound'}[k]||k; }
+const S=B.summary, keys=Object.keys(S);
+const DESC={A0:'Default network, fresh information',A2:'Default network, 2-period delay',A4:'Default network, 4-period delay',B0:'Scarce, misplaced supply, short life',B2:'Scarce, misplaced supply, 2-period delay'};
+let cur=keys[0];
+function rowsOf(k){ return S[k].filter(r=>r.spec[0]!=='bound').slice().sort((a,b)=>a.cpd-b.cpd); }
+function boundOf(k){ return S[k].find(r=>r.spec[0]==='bound'); }
+
+// tabs
+$('tabs').innerHTML=keys.map(k=>`<button class="tab" role="tab" aria-selected="${k===cur}" data-k="${k}">${k} · ${DESC[k]||''}</button>`).join('');
+$('tabs').addEventListener('click',e=>{ const b=e.target.closest('.tab'); if(!b) return; cur=b.dataset.k; document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.k===cur))); render(); });
+
+function bars(k){
+  const svg=$('bars'); while(svg.firstChild) svg.removeChild(svg.firstChild);
+  const rows=rowsOf(k).filter(r=>r.spec[0]!=='none'), bd=boundOf(k);
+  const W=760, rowH=30, mt=10, mb=28, ml=300, mr=60, H=mt+mb+rows.length*rowH; svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const xmax=Math.max(...rows.map(r=>r.cpd+r.cpd_ci))*1.08, X=v=>ml+(v/xmax)*(W-ml-mr);
+  const el=(n,a,st,txt)=>{const e=document.createElementNS(NS,n); for(const q in a) e.setAttribute(q,a[q]); if(st) e.setAttribute('style',st); if(txt!=null) e.textContent=txt; svg.appendChild(e); return e;};
+  for(let i=0;i<=4;i++){ const v=xmax*i/4; el('line',{x1:X(v),x2:X(v),y1:mt,y2:H-mb},'stroke:var(--grid)'); el('text',{x:X(v),y:H-8,'text-anchor':'middle'},null,v.toFixed(2)); }
+  const best=rows[0];
+  rows.forEach((r,i)=>{ const y=mt+i*rowH+6, h=rowH-12;
+    el('text',{x:ml-8,y:y+h/2+4,'text-anchor':'end',class:'lab'},null,label(r.spec).length>44?label(r.spec).slice(0,43)+'…':label(r.spec));
+    el('rect',{x:ml,y,width:Math.max(1,X(r.cpd)-ml),height:h,rx:2},'fill:'+(r===best?'var(--accent)':'var(--muted)')+';opacity:'+(r===best?1:.55));
+    el('line',{x1:X(Math.max(0,r.cpd-r.cpd_ci)),x2:X(r.cpd+r.cpd_ci),y1:y+h/2,y2:y+h/2},'stroke:var(--ink);stroke-width:1.2');
+    el('text',{x:X(r.cpd+r.cpd_ci)+6,y:y+h/2+4},null,r.cpd.toFixed(3)); });
+  if(bd){ el('line',{x1:X(bd.cpd),x2:X(bd.cpd),y1:mt-4,y2:H-mb},'stroke:var(--short);stroke-dasharray:5 4;stroke-width:1.5'); el('text',{x:X(bd.cpd)+4,y:H-mb-4},'fill:var(--short)','bound '+bd.cpd.toFixed(3)); }
+}
+function table(k){
+  const rows=rowsOf(k), bd=boundOf(k), best=rows[0];
+  $('res-body').innerHTML=rows.map(r=>`<tr class="${r===best?'best':''}"><td>${label(r.spec)}</td><td class="n"><b>${r.cpd.toFixed(3)}</b> ± ${r.cpd_ci.toFixed(3)}</td>
+   <td class="n">${(100*r.gap).toFixed(0)}%</td><td class="n" style="color:${r.vs_age<-r.vs_age_ci?'var(--ok)':r.vs_age>r.vs_age_ci?'var(--short)':'var(--muted)'}">${r.spec[0]==='age'?'·':(r.vs_age>0?'+':'')+r.vs_age.toFixed(3)+' ± '+r.vs_age_ci.toFixed(3)}</td>
+   <td class="n">${(100*r.waste_rate).toFixed(1)}%</td><td class="n">${(100*r.unmet_rate).toFixed(1)}%</td><td class="n">${r.moved_per_t.toFixed(2)}</td><td class="n">${Math.round(r.conflicts)}</td></tr>`).join('')
+   +(bd?`<tr><td><i>Perfect-information bound</i></td><td class="n">${bd.cpd.toFixed(3)} ± ${bd.cpd_ci.toFixed(3)}</td><td class="n">0%</td><td colspan="5"></td></tr>`:'');
+  $('res-lede').textContent=`${k}: ${DESC[k]||''}. ${B.test_seeds.length} held-out futures of ${B.horizon} periods. Green paired difference = significantly better than π₂ at 95%.`;
+}
+function render(){ bars(cur); table(cur); }
+
+// heatmap: family rows x settings
+function fam(sp){ return sp[0]==='now'?'now:'+fam(sp[2]):sp[0]; }
+const famLabel={none:'π₀ no transfers',count:'π₁ balance counts',age:'π₂ age-aware',age_t:'π₂ᵗ tuned',band:'Band + rescue',saa:'SAA lookahead','now:count':'Nowcast → π₁','now:age':'Nowcast → π₂','now:age_t':'Nowcast → π₂ᵗ','now:band':'Nowcast → band','now:saa':'Nowcast → SAA lookahead'};
+const order=['none','count','age','age_t','band','saa','now:count','now:age','now:age_t','now:band','now:saa'];
+$('heat-head').innerHTML='<tr><th>Policy</th>'+keys.map(k=>`<th class="n">${k}</th>`).join('')+'</tr>';
+const bestBy={}; keys.forEach(k=>{ bestBy[k]=rowsOf(k)[0]; });
+$('heat-body').innerHTML=order.filter(f=>keys.some(k=>S[k].some(r=>r.spec[0]!=='bound'&&fam(r.spec)===f))).map(f=>'<tr><td>'+famLabel[f]+'</td>'+keys.map(k=>{
+  const r=S[k].find(x=>x.spec[0]!=='bound'&&fam(x.spec)===f); if(!r) return '<td class="h" style="color:var(--muted)">n/a</td>';
+  const g=r.gap, a=Math.max(0,Math.min(1,1-(g-0.4)/2.6)); const isBest=r===bestBy[k];
+  return `<td class="h" style="background:color-mix(in srgb, var(--accent) ${Math.round(a*55)}%, transparent);${isBest?'font-weight:600;outline:2px solid var(--accent);outline-offset:-2px':''}">${(100*g).toFixed(0)}%</td>`; }).join('')+'</tr>').join('');
+
+// verdict, findings
+const V=B.verdict||{};
+$('verdict-text').innerHTML=V.text||'';
+if(V.decide){ $('v-decide').textContent=V.decide; $('v-decide-s').textContent=V.decide_s||''; }
+$('v-kpis').innerHTML=(V.kpis||[]).map(k=>`<div class="kpi"><b>${k[0]}</b><span>${k[1]}</span></div>`).join('');
+$('findings').innerHTML=(B.findings||[]).map(f=>`<li>${f}</li>`).join('');
+$('settings').innerHTML=keys.map(k=>`<li><b>${k}</b> · ${DESC[k]||''}: <span class="num">${Object.entries(B.settings[k]).map(([a,b])=>a+'='+b).join(', ')}</span></li>`).join('');
+$('design-note').textContent=`Defaults: 4 nodes, life 5, supply/demand 1.1, 60% of supply lands on node 1, shortage cost 5, transfer cost 0.3. Training seeds ${B.train_seeds.join(', ')}; test seeds ${B.test_seeds[0]}–${B.test_seeds[B.test_seeds.length-1]}. Tuned constants: ${B.chosen_text}.`;
+$('meta-note').textContent=B.generated||'';
+render();
+})();
+</script>
+
+</body>
+</html>

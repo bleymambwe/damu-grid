@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+.playwright-mcp/
+.firebase/
+engine/outputs/benchmark/
+engine/outputs/bench_quick/

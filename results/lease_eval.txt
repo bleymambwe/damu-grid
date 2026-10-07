@@ -1,0 +1,25 @@
+A0 {'delay': 0}
+  π2       lease=False  cost/demand 0.304  conflicts     0.0  declined     0.0
+  π2       lease=True   cost/demand 0.304  conflicts     0.0  declined     0.7
+  now→π2   lease=False  cost/demand 0.304  conflicts     0.0  declined     0.0
+  now→π2   lease=True   cost/demand 0.304  conflicts     0.0  declined     0.7
+A2 {'delay': 2}
+  π2       lease=False  cost/demand 0.652  conflicts  1619.0  declined     0.0
+  π2       lease=True   cost/demand 0.569  conflicts     0.0  declined  1658.2
+  now→π2   lease=False  cost/demand 0.371  conflicts    17.8  declined     0.0
+  now→π2   lease=True   cost/demand 0.375  conflicts     0.0  declined    45.6
+A4 {'delay': 4}
+  π2       lease=False  cost/demand 0.953  conflicts  2400.2  declined     0.0
+  π2       lease=True   cost/demand 0.730  conflicts     0.0  declined  2272.1
+  now→π2   lease=False  cost/demand 0.439  conflicts    61.9  declined     0.0
+  now→π2   lease=True   cost/demand 0.439  conflicts     0.0  declined    84.8
+A-off {'delay': [0, 0, 4, 0]}
+  π2       lease=False  cost/demand 0.496  conflicts   401.4  declined     0.0
+  π2       lease=True   cost/demand 0.445  conflicts     0.0  declined   430.6
+  now→π2   lease=False  cost/demand 0.329  conflicts     0.0  declined     0.0
+  now→π2   lease=True   cost/demand 0.328  conflicts     0.0  declined     2.9
+B2 {'delay': 2, 'rho': 0.95, 'mismatch': 0.9, 'life': 4, 'p': 10.0}
+  π2       lease=False  cost/demand 2.513  conflicts  1419.0  declined     0.0
+  π2       lease=True   cost/demand 2.233  conflicts     0.0  declined  1788.4
+  now→π2   lease=False  cost/demand 1.963  conflicts    21.6  declined     0.0
+  now→π2   lease=True   cost/demand 1.996  conflicts     0.0  declined   146.0

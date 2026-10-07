@@ -1,0 +1,69 @@
+tuning
+  age/band grid: 300 runs in 22s
+  saa grid: 18 runs in 245s
+  nowcast grid: 72 runs in 3s
+chosen {'age': ('age_t', 1.0, 0.95), 'band': ('band', 0.5), 'saa': ('saa', 3, 16, 0.0), 'nowcast_q': 0.85}
+evaluating
+  test runs: 900 runs in 1799s
+  hindsight bounds: 40 runs in 36s
+
+A0  {'delay': 0}
+  ["bound"]                                  0.203±0.007
+  ["saa", 3, 16, 0.0]                        0.299±0.007  gap  48.1%  vs π2 -0.005±0.006  conflicts 0
+  ["age"]                                    0.304±0.010  gap  50.6%  vs π2 +0.000±0.000  conflicts 0
+  ["age_t", 1.0, 0.95]                       0.326±0.009  gap  61.3%  vs π2 +0.021±0.006  conflicts 0
+  ["count"]                                  0.332±0.009  gap  64.7%  vs π2 +0.028±0.006  conflicts 0
+  ["band", 0.5]                              0.339±0.009  gap  68.0%  vs π2 +0.035±0.005  conflicts 0
+  ["none"]                                   2.024±0.025  gap 904.1%  vs π2 +1.720±0.027  conflicts 0
+
+A2  {'delay': 2}
+  ["bound"]                                  0.203±0.007
+  ["now", 0.85, ["count"]]                   0.340±0.012  gap  68.2%  vs π2 -0.313±0.018  conflicts 42
+  ["now", 0.85, ["saa", 3, 16, 0.0]]         0.340±0.012  gap  68.3%  vs π2 -0.313±0.018  conflicts 53
+  ["now", 0.85, ["band", 0.5]]               0.348±0.012  gap  72.3%  vs π2 -0.304±0.019  conflicts 26
+  ["now", 0.85, ["age_t", 1.0, 0.95]]        0.360±0.012  gap  78.5%  vs π2 -0.292±0.018  conflicts 21
+  ["now", 0.85, ["age"]]                     0.371±0.013  gap  83.9%  vs π2 -0.281±0.018  conflicts 18
+  ["saa", 3, 16, 0.0]                        0.586±0.017  gap 190.2%  vs π2 -0.067±0.024  conflicts 1306
+  ["count"]                                  0.589±0.015  gap 192.0%  vs π2 -0.063±0.021  conflicts 264
+  ["age"]                                    0.652±0.021  gap 223.2%  vs π2 +0.000±0.000  conflicts 1619
+  ["band", 0.5]                              0.678±0.020  gap 235.9%  vs π2 +0.026±0.020  conflicts 1988
+  ["age_t", 1.0, 0.95]                       0.690±0.018  gap 242.3%  vs π2 +0.038±0.020  conflicts 1567
+  ["none"]                                   2.024±0.025  gap 904.1%  vs π2 +1.372±0.028  conflicts 0
+
+A4  {'delay': 4}
+  ["bound"]                                  0.203±0.007
+  ["now", 0.85, ["band", 0.5]]               0.350±0.013  gap  73.2%  vs π2 -0.603±0.024  conflicts 65
+  ["now", 0.85, ["saa", 3, 16, 0.0]]         0.355±0.013  gap  76.2%  vs π2 -0.598±0.025  conflicts 43
+  ["now", 0.85, ["age_t", 1.0, 0.95]]        0.380±0.013  gap  88.0%  vs π2 -0.573±0.025  conflicts 60
+  ["now", 0.85, ["count"]]                   0.426±0.013  gap 111.3%  vs π2 -0.526±0.023  conflicts 44
+  ["now", 0.85, ["age"]]                     0.439±0.014  gap 117.3%  vs π2 -0.514±0.024  conflicts 62
+  ["saa", 3, 16, 0.0]                        0.847±0.023  gap 320.3%  vs π2 -0.106±0.032  conflicts 2070
+  ["age_t", 1.0, 0.95]                       0.946±0.023  gap 369.3%  vs π2 -0.006±0.024  conflicts 2250
+  ["age"]                                    0.953±0.024  gap 372.1%  vs π2 +0.000±0.000  conflicts 2400
+  ["band", 0.5]                              0.974±0.027  gap 383.1%  vs π2 +0.022±0.024  conflicts 3110
+  ["count"]                                  1.078±0.029  gap 434.8%  vs π2 +0.126±0.034  conflicts 878
+  ["none"]                                   2.024±0.025  gap 904.1%  vs π2 +1.072±0.036  conflicts 0
+
+B0  {'delay': 0, 'rho': 0.95, 'mismatch': 0.9, 'life': 4, 'p': 10.0}
+  ["bound"]                                  0.788±0.059
+  ["saa", 3, 16, 0.0]                        1.230±0.047  gap  58.4%  vs π2 -0.405±0.015  conflicts 0
+  ["count"]                                  1.305±0.044  gap  68.3%  vs π2 -0.330±0.016  conflicts 0
+  ["band", 0.5]                              1.324±0.042  gap  70.8%  vs π2 -0.312±0.015  conflicts 0
+  ["age_t", 1.0, 0.95]                       1.358±0.045  gap  75.2%  vs π2 -0.277±0.011  conflicts 0
+  ["age"]                                    1.635±0.042  gap 111.4%  vs π2 +0.000±0.000  conflicts 0
+  ["none"]                                   5.630±0.036  gap 634.1%  vs π2 +3.995±0.063  conflicts 0
+
+B2  {'delay': 2, 'rho': 0.95, 'mismatch': 0.9, 'life': 4, 'p': 10.0}
+  ["bound"]                                  0.788±0.059
+  ["now", 0.85, ["saa", 3, 16, 0.0]]         1.308±0.055  gap  68.4%  vs π2 -1.205±0.052  conflicts 50
+  ["now", 0.85, ["band", 0.5]]               1.368±0.041  gap  76.6%  vs π2 -1.145±0.048  conflicts 79
+  ["now", 0.85, ["age_t", 1.0, 0.95]]        1.457±0.041  gap  88.3%  vs π2 -1.056±0.041  conflicts 92
+  ["now", 0.85, ["count"]]                   1.868±0.038  gap 142.0%  vs π2 -0.645±0.042  conflicts 67
+  ["saa", 3, 16, 0.0]                        1.949±0.037  gap 153.5%  vs π2 -0.564±0.043  conflicts 783
+  ["now", 0.85, ["age"]]                     1.963±0.036  gap 154.6%  vs π2 -0.550±0.045  conflicts 22
+  ["band", 0.5]                              2.175±0.032  gap 183.7%  vs π2 -0.338±0.048  conflicts 1329
+  ["age_t", 1.0, 0.95]                       2.273±0.026  gap 196.0%  vs π2 -0.240±0.042  conflicts 1063
+  ["age"]                                    2.513±0.045  gap 226.8%  vs π2 +0.000±0.000  conflicts 1419
+  ["count"]                                  2.906±0.049  gap 278.1%  vs π2 +0.393±0.043  conflicts 1363
+  ["none"]                                   5.630±0.036  gap 634.1%  vs π2 +3.117±0.057  conflicts 0
+exit 0

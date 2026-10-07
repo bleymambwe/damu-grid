@@ -1,0 +1,325 @@
+<title>Perishable Network Policy Research</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=STIX+Two+Text:ital,wght@0,400;0,600;1,400&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* layout: verdict (the answer) -> results by setting (chart + table) -> overview heatmap -> literature map by field -> policy classes -> method & limits -> roadmap -> references */
+:root{
+  --bg:#f6f7f5; --panel:#ffffff; --ink:#121816; --ink-2:#4a5450; --muted:#7f8884; --grid:#e2e6e3; --border:rgba(18,24,22,.11);
+  --accent:#0d6b63; --accent-soft:#e2f0ee; --waste:#a86a00; --short:#bf3a2b; --ok:#2c7a3a; --info:#2a6fc4;
+  --f-math:"STIX Two Text","Cambria Math",Cambria,Georgia,serif;
+  --f-ui:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  color-scheme:dark; --bg:#0d1110; --panel:#151b19; --ink:#e8eeeb; --ink-2:#b4bfba; --muted:#8a9590; --grid:#26302c; --border:rgba(255,255,255,.10);
+  --accent:#4dbfb2; --accent-soft:#12302c; --waste:#e2a83c; --short:#ef7a6a; --ok:#6cc47a; --info:#6fa8ef;}}
+:root[data-theme="dark"]{
+  color-scheme:dark; --bg:#0d1110; --panel:#151b19; --ink:#e8eeeb; --ink-2:#b4bfba; --muted:#8a9590; --grid:#26302c; --border:rgba(255,255,255,.10);
+  --accent:#4dbfb2; --accent-soft:#12302c; --waste:#e2a83c; --short:#ef7a6a; --ok:#6cc47a; --info:#6fa8ef;}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-ui);font-size:15px;line-height:1.6;margin:0}
+.wrap{max-width:1160px;margin:0 auto;padding-inline:16px;padding-block:26px 72px}
+a{color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+h1,h2,h3{margin:0;text-wrap:balance;line-height:1.2}
+h1{font-family:var(--f-math);font-weight:600;font-size:clamp(1.9rem,4.4vw,2.6rem)}
+h2{font-family:var(--f-math);font-weight:600;font-size:1.45rem}
+h3{font-weight:600;font-size:1rem}
+p{margin:0}
+.lbl{font-family:var(--f-mono);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.lede{color:var(--ink-2);max-width:72ch}
+.m{font-family:var(--f-math);font-size:1.06em}
+section{display:grid;gap:16px;padding-block:28px;border-top:1px solid var(--grid)}
+section>header{display:grid;gap:6px}
+.note{font-size:.8rem;color:var(--muted)}
+.num{font-family:var(--f-mono);font-variant-numeric:tabular-nums}
+
+.verdict{background:var(--panel);border:1px solid var(--accent);border-radius:12px;padding:18px;display:grid;gap:14px}
+.verdict .big{font-family:var(--f-math);font-size:clamp(1.15rem,2.4vw,1.45rem);line-height:1.4;max-width:62ch}
+.pipeline{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+.pipeline>div{flex:1 1 180px;background:var(--accent-soft);border-radius:8px;padding:10px 12px;display:grid;gap:4px;align-content:start;min-width:0}
+.pipeline b{font-family:var(--f-math);font-size:1.05rem}
+.pipeline span{font-size:.84rem;color:var(--ink-2)}
+.pipeline .arrow{flex:0 0 auto;background:none;align-self:center;color:var(--accent);font-size:1.3rem;padding:0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+.kpi{border-left:2px solid var(--accent);padding-left:10px;display:grid}
+.kpi b{font-family:var(--f-math);font-size:1.5rem;font-weight:600}
+.kpi span{font-size:.78rem;color:var(--muted)}
+
+.tabs{display:flex;flex-wrap:wrap;gap:6px}
+.tab{font:500 .84rem var(--f-ui);background:var(--panel);color:var(--ink-2);border:1px solid var(--border);border-radius:999px;padding:5px 12px;cursor:pointer}
+.tab[aria-selected="true"]{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px;display:grid;gap:10px;align-content:start;min-width:0}
+.chart svg{width:100%;height:auto;display:block}
+.chart text{font-family:var(--f-mono);font-size:11px;fill:var(--muted)}
+.chart text.lab{fill:var(--ink);font-family:var(--f-ui);font-size:12px}
+.tablewrap{overflow-x:auto;border:1px solid var(--border);border-radius:8px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:.86rem}
+th,td{padding:8px 12px;border-bottom:1px solid var(--grid);text-align:left;vertical-align:top}
+th{font:500 .7rem var(--f-mono);letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+td.n,th.n{text-align:right;font-family:var(--f-mono);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tr.best td{background:var(--accent-soft)}
+table.res{min-width:780px}
+table.heat{min-width:640px}
+table.heat td.h{text-align:center;font-family:var(--f-mono);white-space:nowrap}
+.pill{display:inline-block;font:500 .68rem var(--f-mono);text-transform:uppercase;letter-spacing:.05em;padding:2px 8px;border-radius:999px;border:1px solid currentColor;white-space:nowrap}
+.pill.impl{color:var(--ok)} .pill.design{color:var(--info)} .pill.no{color:var(--muted)}
+
+.fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:14px}
+.field{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:14px 16px;display:grid;gap:10px;align-content:start;min-width:0}
+.field .idea{font-size:.9rem;color:var(--ink-2)}
+.field ul{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.field li{display:grid;gap:3px;font-size:.86rem;border-top:1px solid var(--grid);padding-top:8px}
+.field li .ref{color:var(--ink)}
+.field li .ref a{color:var(--ink);text-decoration-color:var(--muted)}
+.field li .ref a:hover{color:var(--accent)}
+.field li .use{color:var(--ink-2)}
+.classes{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.classes>div{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px 14px;display:grid;gap:6px;align-content:start}
+.classes b{font-family:var(--f-math);font-size:1.15rem;color:var(--accent)}
+.classes p{font-size:.86rem;color:var(--ink-2)}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:14px}
+.g2>*{min-width:0}
+ul.clean{margin:0;padding-left:1.1em;display:grid;gap:6px;font-size:.92rem;color:var(--ink-2)}
+ul.clean li::marker{color:var(--accent)}
+ol.refs{margin:0;padding-left:1.5em;display:grid;gap:5px;font-size:.84rem;color:var(--ink-2)}
+ol.refs a{word-break:break-word}
+</style>
+
+<div class="wrap">
+<div style="display:grid;gap:10px;padding-block:4px 20px">
+  <div class="lbl">Research synthesis · operations research · stochastic control · networks · quantitative finance</div>
+  <h1>Perishable Network Policy Research</h1>
+  <p class="lede">Which policy best moves decaying, single-use items around a network under random demand and delayed information? This report surveys eight research fields, implements one representative method from each that fits, and tests them all on the same held-out random futures against a perfect-information lower bound.</p>
+</div>
+
+<!-- VERDICT -->
+<div class="verdict" id="verdict">
+  <div class="lbl">Answer</div>
+  <p class="big" id="verdict-text">Loading benchmark results…</p>
+  <div class="pipeline">
+    <div><span class="lbl">Layer 1 · estimate state</span><b>Nowcast</b><span>Roll the delayed snapshot forward through known dynamics using a conservative (high-quantile) demand estimate. Control theory: Smith predictor.</span></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div><span class="lbl">Layer 2 · decide</span><b id="v-decide">Scenario lookahead LP</b><span id="v-decide-s">Re-solve a small two-stage sample-average LP every period. Fall back to the age-aware rule if the solver is unavailable or slow.</span></div>
+    <div class="arrow" aria-hidden="true">→</div>
+    <div><span class="lbl">Layer 3 · guarantee</span><b>Quota reservations</b><span>Each node commits only its own escrow quota, so a stale view can never double-allocate an item. Databases: escrow method.</span></div>
+  </div>
+  <div class="kpis" id="v-kpis"></div>
+</div>
+
+<!-- RESULTS -->
+<section id="results">
+  <header><div class="lbl">Benchmark</div><h2>Cost per unit of demand on held-out futures</h2>
+  <p class="lede" id="res-lede"></p></header>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <div class="card chart"><svg id="bars" viewBox="0 0 760 360" role="img" aria-label="Cost per unit demand by policy with confidence intervals"></svg>
+    <p class="note">Bars: mean over test seeds, whiskers: 95% interval. Dashed line: perfect-information bound (nobody can beat it). π₀ (no transfers) is left off the chart because it is 5 to 10 times higher; it is in the table.</p></div>
+  <div class="tablewrap"><table class="res"><thead><tr><th>Policy</th><th class="n">Cost / demand</th><th class="n">Gap to bound</th><th class="n">vs π₂ (paired)</th><th class="n">Wasted</th><th class="n">Unmet</th><th class="n">Moved / period</th><th class="n">Conflicts / run</th></tr></thead><tbody id="res-body"></tbody></table></div>
+</section>
+
+<section id="overview">
+  <header><div class="lbl">Overview</div><h2>Gap to the perfect-information bound, every setting</h2>
+  <p class="lede">Lower is better. The bound assumes the whole future is known, so even an optimal real policy sits well above it; read gaps comparatively, not as distance from true optimality.</p></header>
+  <div class="tablewrap"><table class="heat"><thead id="heat-head"></thead><tbody id="heat-body"></tbody></table></div>
+  <div class="g2">
+    <div class="card"><h3>What the numbers say</h3><ul class="clean" id="findings"></ul></div>
+    <div class="card"><h3>Settings tested</h3><ul class="clean" id="settings"></ul><p class="note" id="design-note"></p></div>
+  </div>
+</section>
+
+<!-- LITERATURE -->
+<section id="literature">
+  <header><div class="lbl">Literature map</div><h2>Eight fields, one problem</h2>
+  <p class="lede">Each field has solved a version of this problem under another name. The pill says what happened to the idea here: implemented and benchmarked, used to shape the design, or deliberately not pursued.</p></header>
+  <div class="fields">
+
+    <div class="field"><span class="lbl">Operations research · perishable inventory</span>
+      <p class="idea">Perishability makes the state an age vector and kills closed-form answers, but simple structured rules come close to optimal.</p>
+      <ul>
+        <li><span class="ref">Nahmias. <i>Perishable inventory theory: a review.</i> Operations Research 30(4), 1982.</span><span class="use">Establishes the age-vector state and why exact DP fails beyond tiny cases.</span><span><span class="pill design">Shapes design</span></span></li>
+        <li><span class="ref"><a href="https://research.wur.nl/en/publications/blood-platelet-production-optimization-by-dynamic-programming-and/" target="_blank" rel="noopener">Haijema, van der Wal, van Dijk. Optimization by dynamic programming and simulation.</a> Computers &amp; OR 34(3), 2007.</span><span class="use">Solves the MDP on a real case and finds a two-level order-up-to rule (young stock, total stock) is nearly optimal. Evidence that a good rule-based policy can be near the true optimum.</span><span><span class="pill design">Shapes design</span></span></li>
+        <li><span class="ref"><a href="https://ideas.repec.org/a/eee/ejores/v217y2012i1p1-16.html" target="_blank" rel="noopener">Beliën &amp; Forcé. Supply chain management of blood products: a literature review.</a> EJOR 217(1), 2012.</span> <span class="ref"><a href="https://ideas.repec.org/a/taf/tprsxx/v53y2015i24p7191-7212.html" target="_blank" rel="noopener">Osorio, Brailsford &amp; Smith. A structured review of quantitative models.</a> IJPR 53(24), 2015.</span><span class="use">Domain surveys: transshipment and inventory are the most-studied stages; integrated network models are rarer.</span><span><span class="pill design">Shapes design</span></span></li>
+      </ul></div>
+
+    <div class="field"><span class="lbl">Operations research · lateral transshipment</span>
+      <p class="idea">Moving stock sideways between same-level locations, either proactively on a schedule or reactively when one runs out.</p>
+      <ul>
+        <li><span class="ref"><a href="https://ideas.repec.org/a/eee/ejores/v210y2011i2p125-136.html" target="_blank" rel="noopener">Paterson, Kiesmüller, Teunter &amp; Glazebrook. Inventory models with lateral transhipments: a review.</a> EJOR 210, 2011.</span><span class="use">The proactive/reactive taxonomy. Every policy here is proactive and periodic.</span><span><span class="pill design">Shapes design</span></span></li>
+        <li><span class="ref"><a href="https://pubsonline.informs.org/doi/10.1287/opre.2022.2410" target="_blank" rel="noopener">Inventory sharing for perishable products.</a> Operations Research 71(5), 2023.</span><span class="use">Two-site MDP: the optimal transfer direction depends only on which site holds the older oldest unit. About 20% fewer expiries in practice. The basis of the age-aware rescue step.</span><span><span class="pill impl">Implemented · π₂</span></span></li>
+        <li><span class="ref"><a href="https://ideas.repec.org/a/eee/proeco/v198y2018icp93-103.html" target="_blank" rel="noopener">Dehghani &amp; Abbasi. An age-based lateral-transshipment policy for perishable items.</a> IJPE 198, 2018.</span><span class="use">Transfer when the oldest unit crosses an age threshold; tuning the threshold cut cost about 61% in their case. Motivates tuning π₂’s constants.</span><span><span class="pill impl">Implemented · π₂ᵗ</span></span></li>
+        <li><span class="ref"><a href="https://research.aalto.fi/en/publications/proactive-transshipment-in-the-blood-supply-chain-a-stochastic-pr/" target="_blank" rel="noopener">Dehghani et al. Proactive transshipment: a stochastic programming approach,</a> 2019.</span><span class="use">Network-wide proactive transfers chosen by stochastic programming beat reactive rules on both shortage and waste.</span><span><span class="pill impl">Implemented · SAA</span></span></li>
+      </ul></div>
+
+    <div class="field"><span class="lbl">Stochastic programming</span>
+      <p class="idea">Replace the unknown future by sampled scenarios, optimise now-decisions against all of them, re-solve as information arrives.</p>
+      <ul>
+        <li><span class="ref">Kleywegt, Shapiro &amp; Homem-de-Mello. <a href="https://edoc.hu-berlin.de/18452/8871" target="_blank" rel="noopener">The sample average approximation method for stochastic discrete optimization.</a> SIAM J. Optim. 12(2), 2002.</span><span class="use">SAA solutions converge to the true optimum as scenarios grow; gives the statistical basis for the lookahead LP.</span><span><span class="pill impl">Implemented · SAA</span></span></li>
+        <li><span class="ref"><a href="https://arxiv.org/abs/1802.06192" target="_blank" rel="noopener">Bumpensanti &amp; Wang. A re-solving heuristic with uniformly bounded loss for network revenue management,</a> 2018/2020.</span><span class="use">Re-solving a simple LP repeatedly can keep the loss against the optimum bounded by a constant. Supports a rolling re-solve.</span><span><span class="pill impl">Implemented · rolling re-solve</span></span></li>
+        <li><span class="ref">Rockafellar &amp; Wets. Scenarios and policy aggregation in optimization under uncertainty. Math. of OR 16, 1991.</span><span class="use">Progressive hedging decomposes large multistage scenario problems by scenario. The route to scale SAA to many nodes.</span><span><span class="pill no">Not needed at this size</span></span></li>
+      </ul></div>
+
+    <div class="field"><span class="lbl">Sequential decisions · reinforcement learning</span>
+      <p class="idea">Learn a policy or value function from simulated experience instead of solving the model.</p>
+      <ul>
+        <li><span class="ref"><a href="https://castle.princeton.edu/RLSO/" target="_blank" rel="noopener">Powell. Reinforcement Learning and Stochastic Optimization: a unified framework,</a> Wiley 2022. <a href="https://arxiv.org/abs/1912.03513" target="_blank" rel="noopener">arXiv:1912.03513</a></span><span class="use">Every policy is one of four classes (below). Used to organise the candidates and the tuning protocol.</span><span><span class="pill design">Shapes design</span></span></li>
+        <li><span class="ref"><a href="https://ciencia.ucp.pt/en/publications/can-deep-reinforcement-learning-improve-inventory-management-perf/" target="_blank" rel="noopener">Gijsbrechts, Boute, Van Mieghem &amp; Zhang. Can deep reinforcement learning improve inventory management?</a> MSOM 24(3), 2022.</span><span class="use">A3C matches, but does not clearly beat, the best heuristics on lost-sales, dual-sourcing and multi-echelon problems, after heavy tuning.</span><span><span class="pill no">Not pursued yet</span></span></li>
+        <li><span class="ref"><a href="https://ideas.repec.org/a/eee/ejores/v301y2022i2p535-545.html" target="_blank" rel="noopener">De Moor, Gijsbrechts &amp; Boute. Reward shaping to improve deep RL in perishable inventory management.</a> EJOR 301(2), 2022.</span><span class="use">Shaping rewards with a good heuristic stabilises DQN training on perishables. The natural way to try RL here: shape with π₂.</span><span><span class="pill no">Roadmap</span></span></li>
+        <li><span class="ref"><a href="https://arxiv.org/abs/2410.18631" target="_blank" rel="noopener">Kotecha &amp; del Rio Chanona. Graph neural networks and multi-agent RL for inventory control,</a> 2024.</span><span class="use">GNN state encoding fits the network structure; agents tune parameters of heuristic policies rather than raw actions.</span><span><span class="pill no">Roadmap</span></span></li>
+      </ul></div>
+
+    <div class="field"><span class="lbl">Networks · queueing</span>
+      <p class="idea">Route flow by local pressure differences; stability guarantees without knowing arrival rates.</p>
+      <ul>
+        <li><span class="ref">Tassiulas &amp; Ephremides. Stability properties of constrained queueing systems and scheduling policies for maximum throughput. IEEE TAC 37(12), 1992.</span><span class="use">Backpressure: send along the link with the largest queue difference. Throughput-optimal, rate-free. Its “equalise pressure” logic is what the band policy does with periods of cover.</span><span><span class="pill impl">Implemented · band</span></span></li>
+        <li><span class="ref">Neely. <a href="https://en.wikipedia.org/wiki/Drift_plus_penalty" target="_blank" rel="noopener">Stochastic Network Optimization</a> (drift-plus-penalty), 2010; Neely &amp; Huang, <a href="https://arxiv.org/abs/1004.0479" target="_blank" rel="noopener">Dynamic product assembly and inventory control for maximum profit</a>.</span><span class="use">Gives cost within O(1/V) of optimal with O(V) backlog, without forecasts. Strong theory for non-perishables; the guarantee does not carry over directly once items expire.</span><span><span class="pill design">Shapes design</span></span></li>
+        <li><span class="ref">Time-expanded networks and dynamic min-cost flow (Ford &amp; Fulkerson tradition).</span><span class="use">Copy each node per period and per age; transfers and ageing become arcs. This is exactly the structure of the LP used for SAA and for the bound.</span><span><span class="pill impl">Implemented · LP</span></span></li>
+      </ul></div>
+
+    <div class="field"><span class="lbl">Control · estimation under delay</span>
+      <p class="idea">When measurements arrive late, predict the present state from the model before you act.</p>
+      <ul>
+        <li><span class="ref">O. J. M. Smith. Closer control of loops with dead time, 1957 (Smith predictor); Kalman filtering.</span><span class="use">Run the plant model forward over the delay and control on the prediction. The nowcast layer is this idea with a conservative demand quantile.</span><span><span class="pill impl">Implemented · nowcast</span></span></li>
+        <li><span class="ref"><a href="https://arxiv.org/abs/2210.12123" target="_blank" rel="noopener">Optimal estimation with sensor delay,</a> 2022.</span><span class="use">The optimal estimator with delayed measurements reduces to a predictor plus a reduced-order Kalman filter. A route to a probabilistic nowcast.</span><span><span class="pill no">Roadmap</span></span></li>
+      </ul></div>
+
+    <div class="field"><span class="lbl">Quantitative finance · risk</span>
+      <p class="idea">Rebalancing a portfolio with trading costs is rebalancing stock with transfer costs.</p>
+      <ul>
+        <li><span class="ref">Davis &amp; Norman. Portfolio selection with transaction costs. Math. of OR 15(4), 1990; <a href="https://arxiv.org/abs/1207.7330" target="_blank" rel="noopener">user’s guide, arXiv:1207.7330</a>.</span><span class="use">Optimal policy: do nothing inside a no-trade band, trade only to its edge. Implemented as a band on periods of cover after the rescue step.</span><span><span class="pill impl">Implemented · band</span></span></li>
+        <li><span class="ref">Rockafellar &amp; Uryasev. Optimization of conditional value-at-risk. J. of Risk 2(3), 2000.</span><span class="use">CVaR of shortage adds linearly to the scenario LP. Use it if the goal is to protect the worst days rather than the average.</span><span><span class="pill design">Optional extension</span></span></li>
+        <li><span class="ref"><a href="https://arxiv.org/abs/1505.05116" target="_blank" rel="noopener">Mohajerin Esfahani &amp; Kuhn. Data-driven DRO using the Wasserstein metric.</a> Math. Programming 171, 2018.</span><span class="use">Optimise against the worst distribution near the observed data, with finite-sample guarantees. Useful once demand rates are estimated from little data.</span><span><span class="pill design">Optional extension</span></span></li>
+      </ul></div>
+
+    <div class="field"><span class="lbl">Learning · evaluation</span>
+      <p class="idea">Learn the demand model while acting, and know how far from optimal you are.</p>
+      <ul>
+        <li><span class="ref"><a href="https://arxiv.org/abs/2502.09900" target="_blank" rel="noopener">Thompson sampling for repeated newsvendor,</a> 2025.</span><span class="use">Gamma-prior Thompson sampling learns demand with near-optimal regret under censored sales. Drop-in for unknown λ.</span><span><span class="pill no">Roadmap</span></span></li>
+        <li><span class="ref"><a href="https://arxiv.org/abs/1402.5481" target="_blank" rel="noopener">Bertsimas &amp; Kallus. From predictive to prescriptive analytics.</a> Management Science 66(3), 2020.</span><span class="use">Weight historical scenarios by similarity to today’s features; plugs straight into the SAA scenarios.</span><span><span class="pill no">Roadmap</span></span></li>
+        <li><span class="ref"><a href="https://jimsmith.host.dartmouth.edu/wp-content/uploads/2022/04/Information_Relaxations_and_Duality_in_Stochastic_Dynamic_Programs.pdf" target="_blank" rel="noopener">Brown, Smith &amp; Sun. Information relaxations and duality in stochastic dynamic programs.</a> Operations Research 58(4), 2010.</span><span class="use">Perfect-information LP = valid lower bound for any real policy. Adding a penalty for using future information would tighten it.</span><span><span class="pill impl">Implemented · bound</span></span></li>
+      </ul></div>
+  </div>
+</section>
+
+<section id="classes">
+  <header><div class="lbl">Organising frame</div><h2>Powell’s four policy classes, mapped to the candidates</h2></header>
+  <div class="classes">
+    <div><b>PFA</b><span class="lbl">policy function approximation</span><p>A rule with tunable constants: π₁, π₂, tuned π₂ᵗ, band + rescue. Fast and explainable; quality depends on the rule’s structure.</p></div>
+    <div><b>CFA</b><span class="lbl">cost function approximation</span><p>A simplified optimisation with tuned modifications: the terminal penalty θ in the lookahead LP is a CFA term.</p></div>
+    <div><b>VFA</b><span class="lbl">value function approximation</span><p>Learn the value of future states: deep RL, approximate DP. Not implemented; the literature shows it matches good heuristics only after heavy tuning.</p></div>
+    <div><b>DLA</b><span class="lbl">direct lookahead</span><p>Plan explicitly over sampled futures: the SAA lookahead, re-solved each period.</p></div>
+  </div>
+</section>
+
+<section id="method">
+  <header><div class="lbl">Method and limits</div><h2>How to read these results</h2></header>
+  <div class="g2">
+    <div class="card"><h3>Protocol</h3><ul class="clean">
+      <li>Same simulator as the dashboard and the Python package (identical random numbers in both).</li>
+      <li>Constants for π₂ᵗ, band, SAA and nowcast are tuned on training seeds only, then frozen.</li>
+      <li>All policies face the same held-out futures (common random numbers), so paired differences remove most of the noise.</li>
+      <li>Perfect-information bound: a full-horizon LP per future, solved with HiGHS. Its LP relaxation keeps it a valid lower bound.</li>
+    </ul></div>
+    <div class="card"><h3>Limits</h3><ul class="clean">
+      <li>Demand and supply rates are known to every policy. Real systems must estimate them; that will widen every gap.</li>
+      <li>One-period transfer time, uniform transfer cost, complete network.</li>
+      <li>The bound is loose because perfect foresight is very valuable. A gap of 50% does not mean 50% is recoverable.</li>
+      <li>The lookahead LP needs roughly 0.1 s per decision here; fine per period, but grows with nodes × ages × scenarios.</li>
+      <li>Deep RL was not trained, so “not better” is not shown for it; the literature suggests parity with strong heuristics.</li>
+    </ul></div>
+  </div>
+</section>
+
+<section id="roadmap">
+  <header><div class="lbl">Next experiments</div><h2>Where the remaining gap might be</h2></header>
+  <ul class="clean">
+    <li><b>Probabilistic nowcast.</b> Replace the fixed demand quantile with a Kalman-style predicted distribution, and feed it to the lookahead as scenarios.</li>
+    <li><b>Learned demand.</b> Gamma–Poisson Thompson sampling per node, then feature-weighted scenarios (Bertsimas &amp; Kallus).</li>
+    <li><b>Tighter bound.</b> Add an information-relaxation penalty to show how much of the gap is real.</li>
+    <li><b>RL on top of the best rule.</b> Train an agent with π₂ as the reward-shaping potential, or let it tune the band and θ online.</li>
+    <li><b>Risk.</b> Add CVaR of shortage to the LP if worst-day protection matters more than the average.</li>
+  </ul>
+</section>
+
+<section id="refs">
+  <header><div class="lbl">Artefacts</div><h2>Reproduce</h2></header>
+  <pre style="margin:0;background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:14px;overflow-x:auto;font:12.5px/1.6 var(--f-mono)">cd damu-grid/engine
+python -m perishnet.benchmark --out outputs/benchmark     # tunes, evaluates, writes results.json
+python -m pytest -q                                       # 35 tests</pre>
+  <p class="note" id="meta-note"></p>
+</section>
+</div>
+
+<script id="bench" type="application/json">__BENCH_JSON__</script>
+<script>
+(function(){
+const $=id=>document.getElementById(id), NS='http://www.w3.org/2000/svg';
+let B=null; try{ B=JSON.parse($('bench').textContent); }catch(e){}
+if(!B){ $('verdict-text').textContent='Benchmark results are not embedded in this copy of the page.'; return; }
+const SUB='₀₁₂₃₄₅₆₇₈₉';
+function label(sp){ const k=sp[0];
+  if(k==='none') return 'π₀ no transfers'; if(k==='count') return 'π₁ balance counts'; if(k==='age') return 'π₂ age-aware';
+  if(k==='age_t') return `π₂ᵗ tuned (cover ${sp[1]}, β ${sp[2]})`; if(k==='band') return `Band + rescue (b = ${sp[1]})`;
+  if(k==='saa') return `SAA lookahead (K ${sp[1]}, S ${sp[2]}, θ ${sp[3]})`; if(k==='now') return `Nowcast(q ${sp[1]}) → ${label(sp[2])}`;
+  if(k==='bound') return 'Perfect-information bound'; return JSON.stringify(sp); }
+function short(sp){ const k=sp[0]; if(k==='now') return 'Nowcast → '+short(sp[2]);
+  return {none:'π₀',count:'π₁',age:'π₂',age_t:'π₂ᵗ tuned',band:'Band',saa:'SAA lookahead',bound:'Bound'}[k]||k; }
+const S=B.summary, keys=Object.keys(S);
+const DESC={A0:'Default network, fresh information',A2:'Default network, 2-period delay',A4:'Default network, 4-period delay',B0:'Scarce, misplaced supply, short life',B2:'Scarce, misplaced supply, 2-period delay'};
+let cur=keys[0];
+function rowsOf(k){ return S[k].filter(r=>r.spec[0]!=='bound').slice().sort((a,b)=>a.cpd-b.cpd); }
+function boundOf(k){ return S[k].find(r=>r.spec[0]==='bound'); }
+
+// tabs
+$('tabs').innerHTML=keys.map(k=>`<button class="tab" role="tab" aria-selected="${k===cur}" data-k="${k}">${k} · ${DESC[k]||''}</button>`).join('');
+$('tabs').addEventListener('click',e=>{ const b=e.target.closest('.tab'); if(!b) return; cur=b.dataset.k; document.querySelectorAll('.tab').forEach(t=>t.setAttribute('aria-selected',String(t.dataset.k===cur))); render(); });
+
+function bars(k){
+  const svg=$('bars'); while(svg.firstChild) svg.removeChild(svg.firstChild);
+  const rows=rowsOf(k).filter(r=>r.spec[0]!=='none'), bd=boundOf(k);
+  const W=760, rowH=30, mt=10, mb=28, ml=300, mr=60, H=mt+mb+rows.length*rowH; svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const xmax=Math.max(...rows.map(r=>r.cpd+r.cpd_ci))*1.08, X=v=>ml+(v/xmax)*(W-ml-mr);
+  const el=(n,a,st,txt)=>{const e=document.createElementNS(NS,n); for(const q in a) e.setAttribute(q,a[q]); if(st) e.setAttribute('style',st); if(txt!=null) e.textContent=txt; svg.appendChild(e); return e;};
+  for(let i=0;i<=4;i++){ const v=xmax*i/4; el('line',{x1:X(v),x2:X(v),y1:mt,y2:H-mb},'stroke:var(--grid)'); el('text',{x:X(v),y:H-8,'text-anchor':'middle'},null,v.toFixed(2)); }
+  const best=rows[0];
+  rows.forEach((r,i)=>{ const y=mt+i*rowH+6, h=rowH-12;
+    el('text',{x:ml-8,y:y+h/2+4,'text-anchor':'end',class:'lab'},null,label(r.spec).length>44?label(r.spec).slice(0,43)+'…':label(r.spec));
+    el('rect',{x:ml,y,width:Math.max(1,X(r.cpd)-ml),height:h,rx:2},'fill:'+(r===best?'var(--accent)':'var(--muted)')+';opacity:'+(r===best?1:.55));
+    el('line',{x1:X(Math.max(0,r.cpd-r.cpd_ci)),x2:X(r.cpd+r.cpd_ci),y1:y+h/2,y2:y+h/2},'stroke:var(--ink);stroke-width:1.2');
+    el('text',{x:X(r.cpd+r.cpd_ci)+6,y:y+h/2+4},null,r.cpd.toFixed(3)); });
+  if(bd){ el('line',{x1:X(bd.cpd),x2:X(bd.cpd),y1:mt-4,y2:H-mb},'stroke:var(--short);stroke-dasharray:5 4;stroke-width:1.5'); el('text',{x:X(bd.cpd)+4,y:H-mb-4},'fill:var(--short)','bound '+bd.cpd.toFixed(3)); }
+}
+function table(k){
+  const rows=rowsOf(k), bd=boundOf(k), best=rows[0];
+  $('res-body').innerHTML=rows.map(r=>`<tr class="${r===best?'best':''}"><td>${label(r.spec)}</td><td class="n"><b>${r.cpd.toFixed(3)}</b> ± ${r.cpd_ci.toFixed(3)}</td>
+   <td class="n">${(100*r.gap).toFixed(0)}%</td><td class="n" style="color:${r.vs_age<-r.vs_age_ci?'var(--ok)':r.vs_age>r.vs_age_ci?'var(--short)':'var(--muted)'}">${r.spec[0]==='age'?'·':(r.vs_age>0?'+':'')+r.vs_age.toFixed(3)+' ± '+r.vs_age_ci.toFixed(3)}</td>
+   <td class="n">${(100*r.waste_rate).toFixed(1)}%</td><td class="n">${(100*r.unmet_rate).toFixed(1)}%</td><td class="n">${r.moved_per_t.toFixed(2)}</td><td class="n">${Math.round(r.conflicts)}</td></tr>`).join('')
+   +(bd?`<tr><td><i>Perfect-information bound</i></td><td class="n">${bd.cpd.toFixed(3)} ± ${bd.cpd_ci.toFixed(3)}</td><td class="n">0%</td><td colspan="5"></td></tr>`:'');
+  $('res-lede').textContent=`${k}: ${DESC[k]||''}. ${B.test_seeds.length} held-out futures of ${B.horizon} periods. Green paired difference = significantly better than π₂ at 95%.`;
+}
+function render(){ bars(cur); table(cur); }
+
+// heatmap: family rows x settings
+function fam(sp){ return sp[0]==='now'?'now:'+fam(sp[2]):sp[0]; }
+const famLabel={none:'π₀ no transfers',count:'π₁ balance counts',age:'π₂ age-aware',age_t:'π₂ᵗ tuned',band:'Band + rescue',saa:'SAA lookahead','now:count':'Nowcast → π₁','now:age':'Nowcast → π₂','now:age_t':'Nowcast → π₂ᵗ','now:band':'Nowcast → band','now:saa':'Nowcast → SAA lookahead'};
+const order=['none','count','age','age_t','band','saa','now:count','now:age','now:age_t','now:band','now:saa'];
+$('heat-head').innerHTML='<tr><th>Policy</th>'+keys.map(k=>`<th class="n">${k}</th>`).join('')+'</tr>';
+const bestBy={}; keys.forEach(k=>{ bestBy[k]=rowsOf(k)[0]; });
+$('heat-body').innerHTML=order.filter(f=>keys.some(k=>S[k].some(r=>r.spec[0]!=='bound'&&fam(r.spec)===f))).map(f=>'<tr><td>'+famLabel[f]+'</td>'+keys.map(k=>{
+  const r=S[k].find(x=>x.spec[0]!=='bound'&&fam(x.spec)===f); if(!r) return '<td class="h" style="color:var(--muted)">n/a</td>';
+  const g=r.gap, a=Math.max(0,Math.min(1,1-(g-0.4)/2.6)); const isBest=r===bestBy[k];
+  return `<td class="h" style="background:color-mix(in srgb, var(--accent) ${Math.round(a*55)}%, transparent);${isBest?'font-weight:600;outline:2px solid var(--accent);outline-offset:-2px':''}">${(100*g).toFixed(0)}%</td>`; }).join('')+'</tr>').join('');
+
+// verdict, findings
+const V=B.verdict||{};
+$('verdict-text').innerHTML=V.text||'';
+if(V.decide){ $('v-decide').textContent=V.decide; $('v-decide-s').textContent=V.decide_s||''; }
+$('v-kpis').innerHTML=(V.kpis||[]).map(k=>`<div class="kpi"><b>${k[0]}</b><span>${k[1]}</span></div>`).join('');
+$('findings').innerHTML=(B.findings||[]).map(f=>`<li>${f}</li>`).join('');
+$('settings').innerHTML=keys.map(k=>`<li><b>${k}</b> · ${DESC[k]||''}: <span class="num">${Object.entries(B.settings[k]).map(([a,b])=>a+'='+b).join(', ')}</span></li>`).join('');
+$('design-note').textContent=`Defaults: 4 nodes, life 5, supply/demand 1.1, 60% of supply lands on node 1, shortage cost 5, transfer cost 0.3. Training seeds ${B.train_seeds.join(', ')}; test seeds ${B.test_seeds[0]}–${B.test_seeds[B.test_seeds.length-1]}. Tuned constants: ${B.chosen_text}.`;
+$('meta-note').textContent=B.generated||'';
+render();
+})();
+</script>

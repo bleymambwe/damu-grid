@@ -1,0 +1,207 @@
+[
+ {
+  "params": {
+   "n": 4,
+   "L": 5,
+   "rho": 1.1,
+   "m": 0.6,
+   "d": 0,
+   "p": 5,
+   "c": 0.3,
+   "seed": 7
+  },
+  "results": {
+   "none": {
+    "waste": 2221,
+    "short": 1627,
+    "sup": 5720,
+    "dem": 5089,
+    "moved": 0,
+    "conf": 0,
+    "cost": 10356
+   },
+   "count": {
+    "waste": 701,
+    "short": 104,
+    "sup": 5720,
+    "dem": 5089,
+    "moved": 1596,
+    "conf": 0,
+    "cost": 1699.7999999999988
+   },
+   "age": {
+    "waste": 643,
+    "short": 60,
+    "sup": 5720,
+    "dem": 5089,
+    "moved": 2117,
+    "conf": 0,
+    "cost": 1578.100000000001
+   }
+  }
+ },
+ {
+  "params": {
+   "n": 4,
+   "L": 5,
+   "rho": 1.1,
+   "m": 0.6,
+   "d": 2,
+   "p": 5,
+   "c": 0.3,
+   "seed": 7
+  },
+  "results": {
+   "none": {
+    "waste": 2221,
+    "short": 1627,
+    "sup": 5720,
+    "dem": 5089,
+    "moved": 0,
+    "conf": 0,
+    "cost": 10356
+   },
+   "count": {
+    "waste": 884,
+    "short": 292,
+    "sup": 5720,
+    "dem": 5089,
+    "moved": 1705,
+    "conf": 212,
+    "cost": 2855.4999999999986
+   },
+   "age": {
+    "waste": 947,
+    "short": 351,
+    "sup": 5720,
+    "dem": 5089,
+    "moved": 2533,
+    "conf": 1596,
+    "cost": 3461.899999999998
+   }
+  }
+ },
+ {
+  "params": {
+   "n": 6,
+   "L": 8,
+   "rho": 1.3,
+   "m": 0.9,
+   "d": 1,
+   "p": 10,
+   "c": 0.5,
+   "seed": 3
+  },
+  "results": {
+   "none": {
+    "waste": 4652,
+    "short": 3196,
+    "sup": 7434,
+    "dem": 5835,
+    "moved": 0,
+    "conf": 0,
+    "cost": 36612
+   },
+   "count": {
+    "waste": 1761,
+    "short": 285,
+    "sup": 7434,
+    "dem": 5835,
+    "moved": 2985,
+    "conf": 44,
+    "cost": 6103.5
+   },
+   "age": {
+    "waste": 1512,
+    "short": 58,
+    "sup": 7434,
+    "dem": 5835,
+    "moved": 5424,
+    "conf": 3926,
+    "cost": 4804
+   }
+  }
+ },
+ {
+  "params": {
+   "n": 2,
+   "L": 3,
+   "rho": 0.9,
+   "m": 0.2,
+   "d": 0,
+   "p": 2,
+   "c": 0,
+   "seed": 42
+  },
+  "results": {
+   "none": {
+    "waste": 154,
+    "short": 561,
+    "sup": 3254,
+    "dem": 3644,
+    "moved": 0,
+    "conf": 0,
+    "cost": 1276
+   },
+   "count": {
+    "waste": 55,
+    "short": 457,
+    "sup": 3254,
+    "dem": 3644,
+    "moved": 187,
+    "conf": 0,
+    "cost": 969
+   },
+   "age": {
+    "waste": 61,
+    "short": 463,
+    "sup": 3254,
+    "dem": 3644,
+    "moved": 194,
+    "conf": 0,
+    "cost": 987
+   }
+  }
+ },
+ {
+  "params": {
+   "n": 5,
+   "L": 12,
+   "rho": 1.6,
+   "m": 1,
+   "d": 6,
+   "p": 20,
+   "c": 2,
+   "seed": 50
+  },
+  "results": {
+   "none": {
+    "waste": 6240,
+    "short": 3246,
+    "sup": 8689,
+    "dem": 5456,
+    "moved": 0,
+    "conf": 0,
+    "cost": 71160
+   },
+   "count": {
+    "waste": 3905,
+    "short": 884,
+    "sup": 8689,
+    "dem": 5456,
+    "moved": 3466,
+    "conf": 60,
+    "cost": 28517
+   },
+   "age": {
+    "waste": 3180,
+    "short": 146,
+    "sup": 8689,
+    "dem": 5456,
+    "moved": 4535,
+    "conf": 17113,
+    "cost": 15170
+   }
+  }
+ }
+]

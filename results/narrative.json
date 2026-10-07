@@ -1,0 +1,21 @@
+{
+  "verdict": {
+    "text": "Decide on a <b>nowcast</b>, not on the stale snapshot; choose transfers with a <b>rolling scenario LP</b> (falling back to the age-aware rule); and gate every transfer through <b>sender-side quota leases</b>. Across five held-out settings this stack is best or tied-best everywhere, roughly halves cost whenever information is delayed, and makes promising the same unit twice impossible.",
+    "decide": "Scenario lookahead LP",
+    "decide_s": "Re-solve a 3-day, 16-scenario sample-average LP every day at the hub (about 0.1 s). Field devices run the age-aware rule, which ties the LP when data is fresh.",
+    "kpis": [
+      ["−48%", "cost vs the age-aware rule with a 2-day data delay (0.340 vs 0.652)"],
+      ["1,619 → 0", "units promised twice per year at a 2-day delay, once nowcast and leases are on"],
+      ["−25%", "cost vs the rule when supply is scarce and lands in one place (1.230 vs 1.635)"],
+      ["48%", "best policy's gap to perfect foresight in the default setting (the bound is loose)"]
+    ]
+  },
+  "findings": [
+    "<b>Fresh information beats a cleverer optimiser.</b> With a 2- or 4-day delay, deciding on a nowcast roughly halves every policy's cost (age-aware rule: 0.652 → 0.371 at δ = 2, 0.953 → 0.439 at δ = 4).",
+    "<b>With fresh data the rule and the LP tie.</b> 0.304 vs 0.299 per unit of demand; paired difference −0.005 ± 0.006, not significant.",
+    "<b>Scarcity is where optimisation pays.</b> When supply is 95% of demand and 90% of it lands in one place, the LP is clearly best (1.230 vs 1.635), and the plain age-aware rule is the weakest coordinated policy.",
+    "<b>Over-tuning backfires.</b> Constants tuned on six training futures did worse on unseen futures in the default setting (+0.021 ± 0.006). Keep the rule's constants principled.",
+    "<b>Leases make conflicts impossible.</b> Tested separately on 20 seeds: conflicts go to exactly zero. Without a nowcast, leases also cut cost 11–23%; with one they are cost-neutral (within ±2%).",
+    "<b>Headroom remains.</b> The best policy is 48–73% above the perfect-foresight bound. That bound is loose, so the recoverable gap is smaller; better demand forecasts are the most likely lever."
+  ]
+}
