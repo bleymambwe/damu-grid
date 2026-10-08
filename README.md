@@ -44,7 +44,7 @@ and Turkana names this mismatch as one of seven root causes of Kenya's blood cri
 | **1. Nowcast** | Rolls each facility's last report forward by its own delay, using expected usage at a cautious (85th-percentile) rate, so decisions use an estimate of *today's* stock. | Control theory (Smith predictor) |
 | **2. Decide** | **Age-aware rule:** units that will expire before local demand reaches them go to the facility with the most room to use them in time; then facilities below a two-day safety level are topped up, oldest units first. At the hub, a **rolling scenario LP** (3 days, 16 sampled futures) can replace the rule. | Operations research: perishable transshipment, sample-average approximation |
 | **3. Quota leases** | Every transfer is confirmed by the *sending* facility against its live shelf: units at risk are always released, others only above its own safety level. A unit can never be promised twice. | Databases (escrow transactions) |
-| **Blood groups** | Stock is kept per ABO/RhD group (Kenyan donor mix). Each patient gets the oldest compatible unit; RhD-negative units go to RhD-positive patients only on their last day. With fresh data, coordination cuts expired units 56% and unmet requests 70% (`results/groups_eval.txt`). | Transfusion compatibility rules |
+| **Blood groups** | Stock is kept per ABO/RhD group (Kenyan donor mix). Each patient gets the oldest compatible unit; RhD-negative units go to RhD-positive patients only on their last day. Platelet rule: when no RhD-negative unit is available, an RhD-negative patient may get RhD-positive platelets, flagged for anti-D. With fresh data, coordination cuts expired units 58% and unmet requests 72%; RhD-negative patients left unserved fall from 72 to 18 a year (`results/groups_eval.txt`). | Transfusion compatibility rules (UK BSH platelet guidance) |
 
 People approve or reject every suggestion. Each suggestion carries a plain-language reason.
 
@@ -66,7 +66,7 @@ Full tables, confidence intervals and the literature map: [Evidence page](https:
 
 ```
 engine/      Python reference engine "perishnet": simulator, policies, nowcast, leases, LP lookahead,
-             perfect-information bound, benchmark, figures, blood groups. 50 tests.
+             perfect-information bound, benchmark, figures, blood groups. 52 tests.
 web/         Static demo site (no build step): index.html (control room), method.html, evidence.html,
              js/engine.js (line-for-line port of the Python engine), js/app.js (UI), data/kenya_map.json
 pages/       Sources for method.html and evidence.html
@@ -81,7 +81,7 @@ docs/        SUBMISSION.md: the seven hackathon deliverables
 # Python engine
 cd engine
 pip install matplotlib pillow scipy pytest
-python -m pytest -q                     # 50 tests
+python -m pytest -q                     # 52 tests
 python -m perishnet                     # compare policies, write figures to outputs/
 python -m perishnet.benchmark           # full benchmark (about 30 min on 4 cores)
 
@@ -98,10 +98,10 @@ python -m http.server -d web 8000       # open http://localhost:8000
 ## Honest limits
 
 - Demand and supply rates are known to the engine; a deployment must estimate them per facility.
-- Blood groups use the standard red-cell ABO/RhD table (configurable); transfers rebalance each group separately and do not yet plan for substitution.
+- Blood-group transfers rebalance each group separately and do not yet plan for substitution; compatibility presets (platelet, red-cell) need sign-off by the service's clinicians.
 - Transfers take one day between any two facilities at the same cost.
 - The demo runs the rule live; the LP lookahead is benchmarked in Python, not run in the browser.
-- The FHIR/DHIS2 interfaces in `docs/SUBMISSION.md` are a design, not yet implemented.
+- FHIR: the demo exports a facility's live shelf and today's transfers as an illustrative R5 Bundle ("View as FHIR R5"); a FHIR API service and the DHIS2 export are designs.
 
 ## Credits and data
 

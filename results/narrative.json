@@ -29,6 +29,6 @@
     "<b>Over-tuning backfires.</b> Constants tuned on six training futures did worse on unseen futures in the default setting (+0.021 ± 0.006). Keep the rule's constants principled.",
     "<b>Leases make conflicts impossible.</b> Tested separately on 20 seeds: conflicts go to exactly zero. Without a nowcast, leases also cut cost 11–23%; with one they are cost-neutral (within ±2%).",
     "<b>Headroom remains.</b> The best policy is 48–73% above the perfect-foresight bound. That bound is loose, so the recoverable gap is smaller; better demand forecasts are the most likely lever.",
-    "<b>Blood groups.</b> With the Kenyan ABO/RhD donor mix and compatible substitution, coordination cuts expired units by 56% and unmet requests by 70% (cost 2.375 → 1.017). Splitting stock into eight groups raises every policy's cost; rare-group platelets such as O− cannot be held at every small site."
+    "<b>Blood groups.</b> With the Kenyan ABO/RhD donor mix, coordination cuts expired units by 58% and unmet requests by 72% (cost 2.344 → 0.946). Under the platelet rule, RhD-negative patients left unserved fall from 72 to 18 a year, with about 147 a year receiving RhD-positive platelets flagged for anti-D. Under the strict red-cell rule about 165 a year stay unmet whatever the policy."
   ]
 }

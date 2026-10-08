@@ -28,7 +28,7 @@ All data is synthetic; facility names are real towns, every stock, demand and su
 
 | Judging criterion | Strongest evidence |
 |---|---|
-| Technical depth, architecture, engineering judgment (20%) | Three-layer design (nowcast → decide → quota lease); Python reference engine with 50 tests; browser port matching Python on 45 configurations (30 single-product, 15 blood-group); failure-mode table §8 |
+| Technical depth, architecture, engineering judgment (20%) | Three-layer design (nowcast → decide → quota lease); Python reference engine with 52 tests; browser port matching Python on 48 configurations (30 single-product, 18 blood-group); failure-mode table §8 |
 | AI/data architecture, evaluation, reliability (15%) | Held-out evaluation, paired comparisons, perfect-information lower bound, monitoring and fallback §5 |
 | Scalability, interoperability, adaptability (15%) | Parameterised engine, FHIR/DHIS2 interface design, scaling route §6–7 |
 
@@ -78,9 +78,9 @@ Everything on the demo page is computed live by the engine in the browser; nothi
 
 | Component | Path | Status |
 |---|---|---|
-| Reference engine (Python): simulator, age-aware rule, nowcast, quota leases, ABO/RhD blood-group matching, scenario LP lookahead, perfect-information bound, benchmark | `engine/perishnet` | Built, 50 tests |
-| Browser engine (JavaScript), line-for-line port | `web/js/engine.js` | Built; identical results to Python on 30 single-product and 15 blood-group configurations (`web/js/engine.test.js`, `web/js/engine.groups.test.js`) |
-| Blood-group matching: stock per ABO/RhD group; transfers, nowcast and leases per group; at the bedside the oldest compatible unit is used, and RhD-negative units reach RhD-positive patients only on their last day | `engine/perishnet/groups.py`, `GroupSim` in `web/js/engine.js` | Built; group mix from a Kenyan donor study (Murang'a University repository) |
+| Reference engine (Python): simulator, age-aware rule, nowcast, quota leases, ABO/RhD blood-group matching, scenario LP lookahead, perfect-information bound, benchmark | `engine/perishnet` | Built, 52 tests |
+| Browser engine (JavaScript), line-for-line port | `web/js/engine.js` | Built; identical results to Python on 30 single-product and 18 blood-group configurations (`web/js/engine.test.js`, `web/js/engine.groups.test.js`) |
+| Blood-group matching: stock per ABO/RhD group; transfers, nowcast and leases per group; at the bedside the oldest compatible unit is used; RhD-negative units reach RhD-positive patients only on their last day; platelet rule: RhD-positive platelets for an RhD-negative patient only as a last resort, flagged for anti-D | `engine/perishnet/groups.py`, `GroupSim` in `web/js/engine.js` | Built; group mix from a Kenyan donor study (Murang'a University repository) |
 | Control-room demo: map of six facilities, live transfers, approve/reject, per-facility data links, layer toggles, comparison with no coordination | `web/index.html`, `web/js/app.js` | Built, deployed |
 | Benchmark and lease evaluation | `results/` | Built |
 
@@ -123,7 +123,7 @@ flowchart LR
 |---|---|---|
 | Core services | Facility node (event log, live shelf, lease check); hub (merged ledger, nowcast, decision engine, suggestion service) | Engine Built; services Designed |
 | Data model | Unit keyed on ISBT 128 donation identification number + product code; append-only events `collected → tested → released → stored → (reserved → in_transit →) issued → transfused / expired / discarded`. The engine works on the aggregate `stock[facility][days_left]` derived from events | Aggregate Built; event model Designed |
-| APIs | FHIR R5: `BiologicallyDerivedProduct` (unit), `SupplyRequest` / `SupplyDelivery` (transfer), `Procedure` (transfusion), following ISBT Working Party on IT guidance | Designed |
+| APIs | FHIR R5: `BiologicallyDerivedProduct` (unit), `SupplyRequest` / `SupplyDelivery` (transfer), `Procedure` (transfusion), following ISBT Working Party on IT guidance. The demo exports any facility's live shelf and today's transfers as an R5 Bundle (`web/js/fhir.js`, "View as FHIR R5") | Illustrative export Built; API service Designed |
 | Integrations | Adapter from existing bank systems (e.g. Damu-Sasa) into unit events; weekly DHIS2 aggregate export (expiries, unmet requests, transfers per facility) | Designed |
 | Authentication | Per-device keys; roles (officer, coordinator, viewer); signed lease confirmations so an SMS confirmation cannot be forged | Designed |
 | Information flows | Events up (facility → hub); suggestions down; confirmations back up; aggregates out to ABBIS/DHIS2 | Simulated |
@@ -161,18 +161,22 @@ Quota leases (separate test, 20 seeds): conflicts go from 1,619 per year to 0 at
 nowcast on, leases change cost by at most about 2%.
 
 **Blood groups (ABO/RhD), separate evaluation:** six facilities, Kenyan donor group mix, 20 held-out years
-(`results/groups_eval.txt`). Splitting stock into eight groups makes every policy costlier, because rare-group
-platelets cannot be kept everywhere for five days; coordination still more than halves the cost.
+(`results/groups_eval.txt`). Default is the **platelet rule**: ABO-compatible units, the oldest first; when no
+RhD-negative unit is available, an RhD-negative patient may receive RhD-positive platelets, and each such issue
+is flagged "anti-D prophylaxis advised for girls and women of childbearing potential" (UK BSH guidance; NZ Blood
+Service handbook 4.9). The strict red-cell rule is also measured.
 
-| Setting | No coordination | Age-aware rule | + Nowcast + leases |
+| Setting (platelet rule) | No coordination | Age-aware rule | + Nowcast + leases |
 |---|---|---|---|
-| Fresh data | 2.375 | 1.019 | 1.017 |
-| 2-day data delay | 2.375 | 1.163 (3,977 conflicts/yr) | 1.121 (0 conflicts) |
-| Siaya and Lodwar offline | 2.375 | 1.022 (986 conflicts/yr) | 1.004 (0 conflicts) |
+| Fresh data | 2.344 | 0.946 | 0.946 |
+| 2-day data delay | 2.344 | 1.083 (3,941 conflicts/yr) | 1.040 (0 conflicts) |
+| Siaya and Lodwar offline | 2.344 | 0.960 (984 conflicts/yr) | 0.933 (0 conflicts) |
 
-With fresh data, coordination cuts expired units by 56% (2,706 → 1,182 a year) and unmet requests by 70%
-(2,200 → 666). About 120 O− requests a year stay unmet: O− is 3.5% of donors and its platelets cannot be
-held at every small facility; the next step is transfers that account for compatible substitutes.
+With fresh data, coordination cuts expired units by 58% (2,676 → 1,115 a year) and unmet requests by 72%
+(2,170 → 597). RhD-negative patients left unserved fall from 72 to 18 a year; about 147 a year receive
+RhD-positive platelets with an anti-D flag. Under the strict red-cell rule about 165 RhD-negative requests a
+year stay unmet in every policy, because RhD-negative platelets (5% of donors, 5-day shelf life) cannot be kept
+at every facility. Splitting stock into eight groups raises every policy's cost compared with one pooled product.
 
 ## 6. Adaptability
 
@@ -182,7 +186,7 @@ held at every small facility; the next step is transfers that account for compat
 |---|---|---|
 | Configuration | Shelf life, safety level (days of cover × service level from the shortage/waste cost ratio), transfer cost and time, number of facilities, per-facility data delay are parameters | Built |
 | Products | Platelets (5 days) in the demo; red cells or plasma by changing shelf life and safety level | Built (parameter) |
-| Blood groups | ABO/RhD group shares and the donor → recipient compatibility table are parameters; the default is the red-cell rule, and platelet-specific rules (plasma compatibility, RhD for women of childbearing age) are set by the service's clinicians | Built (parameter) |
+| Blood groups | ABO/RhD group shares and the donor → recipient compatibility table are parameters; two presets are built (platelet: RhD-positive last resort with anti-D flag; red-cell: strict); final rules, e.g. plasma compatibility, are set by the service's clinicians | Built (parameter) |
 | Localisation | Interface strings in one place for translation (English, Kiswahili, French); units, date formats and facility names from configuration | Designed |
 | Interoperability | FHIR R5 resources and DHIS2 export (§4); adapters for existing bank systems | Designed |
 | Scaling | The rule costs O(facilities × shelf-life days) per decision and runs on a phone; the LP grows with scenarios and can be split by scenario (progressive hedging) for large networks | Rule Built; LP decomposition Designed |
@@ -222,7 +226,7 @@ held at every small facility; the next step is transfers that account for compat
 ## Known limits of the prototype
 
 - Demand and supply rates are given to the engine; a pilot must estimate them.
-- Blood groups use the standard red-cell compatibility table; transfers rebalance each group separately and do not yet plan for substitution.
+- Blood-group transfers rebalance each group separately and do not yet plan for substitution; ABO-incompatible platelets (allowed in some services) are not used.
 - Transfers take one day between any two facilities at the same cost.
 - The demo runs the rule live; the scenario LP is benchmarked in Python, not run in the browser.
 - FHIR, DHIS2, authentication and ISBT 128 scanning are designs, not code.

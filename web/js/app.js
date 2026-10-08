@@ -107,7 +107,12 @@
     if (rec.subs) {
       const agg = {};
       rec.subs.forEach(([i, k, d, n]) => { const key = i + ':' + k + ':' + d; agg[key] = (agg[key] || 0) + n; });
-      Object.entries(agg).forEach(([key, n]) => { const [i, k, d] = key.split(':').map(Number);
+      rec.subs.forEach(([i, k, d, n, tier]) => { if (tier === 1) agg['o:' + i + ':' + k + ':' + d] = (agg['o:' + i + ':' + k + ':' + d] || 0) + n; });
+      Object.entries(agg).forEach(([key, n]) => {
+        if (key.startsWith('o:')) { const [, i, k, d] = key.split(':').map(Number);
+          items.push(['x', `${FAC[i].name}: ${n} ${G[k]} patient${n > 1 ? 's' : ''} given ${G[d]} platelets (no RhD-negative unit available; anti-D prophylaxis advised for girls and women of childbearing potential)`]); return; }
+        const [i, k, d] = key.split(':').map(Number);
+        if (G[k].endsWith('-') && G[d].endsWith('+')) return;
         items.push(['', `${FAC[i].name}: ${n} ${G[k]} request${n > 1 ? 's' : ''} served with compatible ${G[d]}`]); });
     }
     rec.waste.forEach((w, i) => { if (w) { facTot[i].x += w; items.push(['x', `${FAC[i].name}: ${w} unit${w > 1 ? 's' : ''} expired`]); } });
@@ -346,7 +351,8 @@
       <span>Requests unmet</span><span class="v us">${a.short}</span><span class="v them">${b.short}</span>
       <span>Units moved</span><span class="v us">${a.moved}</span><span class="v them">0</span>
       <span>Conflicts</span><span class="v us" style="${a.conf ? 'color:var(--red)' : ''}">${a.conf}</span><span class="v them">0</span>`
-      + (a.subs != null ? `<span>Compatible substitutes</span><span class="v us">${a.subs}</span><span class="v them">${b.subs}</span>` : '');
+      + (a.subs != null ? `<span>Compatible substitutes</span><span class="v us">${a.subs}</span><span class="v them">${b.subs}</span>` : '')
+      + (a.overrides != null ? `<span title="RhD-positive platelets given to RhD-negative patients as a last resort; anti-D prophylaxis advised for girls and women of childbearing potential">RhD+ given to RhD− (anti-D)</span><span class="v us">${a.overrides}</span><span class="v them">${b.overrides}</span>` : '');
     drawSpark();
   }
   function renderHead() {
@@ -366,7 +372,7 @@
     const negUnmet = (!rec.pending && sim.lastNegUnmet && sim.lastNegUnmet.t === rec.t) ? sim.lastNegUnmet : null;
     if (negUnmet) {
       title = `${negUnmet.n} RhD-negative request${negUnmet.n > 1 ? 's' : ''} unmet today.`;
-      sub = 'About 5% of Kenyan donors are RhD-negative. The engine keeps these units for RhD-negative patients unless they would expire.';
+      sub = 'About 5% of Kenyan donors are RhD-negative and no ABO-compatible RhD-positive unit was on the shelf either. RhD-negative units are kept for RhD-negative patients unless they would expire.';
       act = 'Open ledger'; fn = () => showTab('log');
     } else if (rec.conf > 0) {
       title = `${rec.conf} requested unit${rec.conf > 1 ? 's were' : ' was'} no longer on the shelf today.`;
@@ -404,6 +410,7 @@
       bars += `<div class="row"><span>${r} day${r > 1 ? 's' : ''}</span><div class="track"><div class="b" style="width:${100 * stock[r] / mx}%;background:${c}"></div>${view ? `<div class="b view" style="width:${100 * view[r] / mx}%;color:${c}"></div>` : ''}</div><span>${stock[r]}${view && view[r] !== stock[r] ? '/' + view[r] : ''}</span></div>`;
     }
     $('pane-fac').innerHTML = `<div class="fac"><h3>${f.name}</h3><p class="subt">${f.role}</p>
+      <button class="btn ghost small" id="fhir-open" style="margin-bottom:10px">View as FHIR R5</button>
       <div class="eyebrow" style="margin-bottom:6px">Data link</div>
       <div class="seg" role="group" aria-label="Data link for ${f.name}">${[0, 1, 2, 4].map(v => `<button data-d="${v}" aria-pressed="${d === v}">${v ? v + (v > 1 ? ' days' : ' day') + ' late' : 'Live'}</button>`).join('')}</div>
       <div class="stats"><div><b>${P.lam[i]}</b><span>units/day demand</span></div><div><b>${sim.PG ? sim.PG.reduce((acc, Q) => acc + Q.target[i], 0) : P.target[i]}</b><span>two-day safety level${sim.PG ? ' (all groups)' : ''}</span></div><div><b>${d ? d + ' d' : 'live'}</b><span>age of hub’s data</span></div></div>
@@ -420,9 +427,25 @@
       const cls = 'gc' + (g.endsWith('-') ? ' neg' : '') + (n === 0 ? ' zero' : '') + (n < tgt ? ' low' : '');
       return `<div class="${cls}"><b>${g}</b><span>${n}</span><small>${tgt ? 'safety ' + tgt : 'no stock kept'}</small></div>`; }).join('');
     return `<div class="eyebrow" style="margin-top:14px">Stock by blood group</div><div class="ggrid">${cells}</div>
-      <p class="hint" style="margin-top:6px">Requests use the same group first, then a compatible one, oldest unit first. RhD-negative units go to RhD-positive patients only on their last day.</p>`;
+      <p class="hint" style="margin-top:6px">Requests use the same group first, then a compatible one, oldest unit first. RhD-negative units go to RhD-positive patients only on their last day. Platelet rule: if no RhD-negative unit is available, an RhD-negative patient may get ABO-compatible RhD-positive platelets; anti-D prophylaxis is advised for girls and women of childbearing potential.</p>`;
   }
+  function openFhir() {
+    const i = selected, groups = sim.PG ? G : null;
+    const bundle = window.DamuFHIR.bundleFor(FAC, cur, i, groups, sim.P.L);
+    const units = bundle.entry.filter(e => e.resource.resourceType === 'BiologicallyDerivedProduct').length;
+    const reqs = bundle.total - units;
+    $('fhir-title').textContent = `${FAC[i].name} as FHIR R5`;
+    $('fhir-sub').textContent = `${units} BiologicallyDerivedProduct resource${units === 1 ? '' : 's'} (one per unit on the shelf) and ${reqs} SupplyRequest${reqs === 1 ? '' : 's'} for today's transfers. Illustrative: synthetic identifiers; production would carry ISBT 128 donation numbers and product codes.`;
+    $('fhir-json').textContent = JSON.stringify(bundle, null, 2);
+    $('fhir').showModal();
+  }
+  $('fhir-close').addEventListener('click', () => $('fhir').close());
+  $('fhir-copy').addEventListener('click', () => {
+    const txt = $('fhir-json').textContent;
+    const done = () => { $('fhir-copy').textContent = 'Copied'; setTimeout(() => $('fhir-copy').textContent = 'Copy JSON', 1500); };
+    if (navigator.clipboard) navigator.clipboard.writeText(txt).then(done, () => {}); });
   $('pane-fac').addEventListener('click', e => {
+    if (e.target.closest('#fhir-open')) { openFhir(); return; }
     const b = e.target.closest('[data-d]'); if (!b) return;
     sim.P.delays[selected] = +b.dataset.d;
     document.querySelectorAll('.chip').forEach(c => c.setAttribute('aria-selected', 'false'));

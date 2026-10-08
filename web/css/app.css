@@ -107,3 +107,12 @@
 .gc.neg{background:var(--gold-soft)}
 .gc.low span{color:var(--red)}
 .gc.zero{opacity:.6}
+
+/* FHIR dialog */
+.fhir{overflow:hidden;width:min(860px,calc(100vw - 32px));max-height:min(84vh,820px);border:0;border-radius:16px;padding:0;box-shadow:0 24px 60px rgba(15,35,80,.25);color:var(--ink)}
+.fhir::backdrop{background:rgba(15,35,80,.35)}
+.fhir-head{display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;align-items:flex-start;padding:18px 20px;border-bottom:1px solid var(--line)}
+.fhir-head h2{margin:4px 0 2px;font:700 1.15rem var(--f);color:var(--navy)}
+.fhir-head .hint{max-width:60ch}
+.fhir-act{display:flex;gap:8px}
+.fhir pre{margin:0;padding:16px 20px;overflow:auto;max-height:calc(min(84vh,820px) - 120px);font:12px/1.5 var(--f-code,ui-monospace,Consolas,monospace);background:var(--soft);color:var(--ink)}

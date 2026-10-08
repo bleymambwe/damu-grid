@@ -1,18 +1,37 @@
 Blood groups: Kenyan donor ABO/RhD mix, 6 facilities, platelets (5-day shelf life), 365 days, 20 seeds
-Issue rule: oldest compatible unit first; RhD-negative units to RhD-positive patients only on their last day
+Issue: oldest compatible unit first; RhD-negative units to RhD-positive patients only on their last day.
+Rules: red-cell = strict RhD; platelet = ABO-compatible RhD-positive platelets for an RhD-negative patient as a
+last resort, counted as 'anti-D' (prophylaxis advised for girls and women of childbearing potential).
 
+=== platelet rule ===
 fresh data
-  no coordination            cost/demand 2.375   expired   2706   unmet   2200   O- unmet 128.1   substitutions   533   conflicts      0
-  age-aware rule             cost/demand 1.019   expired   1182   unmet    666   O- unmet 119.5   substitutions   838   conflicts      0
-  rule + nowcast + leases    cost/demand 1.017   expired   1190   unmet    675   O- unmet 119.6   substitutions   829   conflicts      0
+  no coordination            cost/demand 2.344   expired   2676   unmet   2170   RhD- unmet  72.4   anti-D 104.7   conflicts      0
+  age-aware rule             cost/demand 0.946   expired   1115   unmet    597   RhD- unmet  18.1   anti-D 146.9   conflicts      0
+  rule + nowcast + leases    cost/demand 0.946   expired   1125   unmet    609   RhD- unmet  19.1   anti-D 145.6   conflicts      0
 
 2-day delay
-  no coordination            cost/demand 2.375   expired   2706   unmet   2200   O- unmet 128.1   substitutions   533   conflicts      0
-  age-aware rule             cost/demand 1.163   expired   1407   unmet    893   O- unmet 125.3   substitutions   917   conflicts   3977
-  rule + nowcast + leases    cost/demand 1.121   expired   1317   unmet    807   O- unmet 125.6   substitutions   843   conflicts      0
+  no coordination            cost/demand 2.344   expired   2676   unmet   2170   RhD- unmet  72.4   anti-D 104.7   conflicts      0
+  age-aware rule             cost/demand 1.083   expired   1333   unmet    818   RhD- unmet  24.6   anti-D 148.8   conflicts   3941
+  rule + nowcast + leases    cost/demand 1.040   expired   1244   unmet    732   RhD- unmet  26.9   anti-D 146.6   conflicts      0
 
 Siaya and Lodwar offline
-  no coordination            cost/demand 2.375   expired   2706   unmet   2200   O- unmet 128.1   substitutions   533   conflicts      0
-  age-aware rule             cost/demand 1.022   expired   1221   unmet    701   O- unmet 120.6   substitutions   846   conflicts    986
-  rule + nowcast + leases    cost/demand 1.004   expired   1186   unmet    668   O- unmet 120.6   substitutions   820   conflicts      0
+  no coordination            cost/demand 2.344   expired   2676   unmet   2170   RhD- unmet  72.4   anti-D 104.7   conflicts      0
+  age-aware rule             cost/demand 0.960   expired   1165   unmet    644   RhD- unmet  19.7   anti-D 146.8   conflicts    984
+  rule + nowcast + leases    cost/demand 0.933   expired   1122   unmet    604   RhD- unmet  19.9   anti-D 146.1   conflicts      0
+
+=== red-cell rule ===
+fresh data
+  no coordination            cost/demand 2.375   expired   2706   unmet   2200   RhD- unmet 177.1   anti-D   0.0   conflicts      0
+  age-aware rule             cost/demand 1.019   expired   1182   unmet    666   RhD- unmet 165.0   anti-D   0.0   conflicts      0
+  rule + nowcast + leases    cost/demand 1.017   expired   1190   unmet    675   RhD- unmet 164.7   anti-D   0.0   conflicts      0
+
+2-day delay
+  no coordination            cost/demand 2.375   expired   2706   unmet   2200   RhD- unmet 177.1   anti-D   0.0   conflicts      0
+  age-aware rule             cost/demand 1.163   expired   1407   unmet    893   RhD- unmet 173.3   anti-D   0.0   conflicts   3977
+  rule + nowcast + leases    cost/demand 1.121   expired   1317   unmet    807   RhD- unmet 173.4   anti-D   0.0   conflicts      0
+
+Siaya and Lodwar offline
+  no coordination            cost/demand 2.375   expired   2706   unmet   2200   RhD- unmet 177.1   anti-D   0.0   conflicts      0
+  age-aware rule             cost/demand 1.022   expired   1221   unmet    701   RhD- unmet 166.5   anti-D   0.0   conflicts    986
+  rule + nowcast + leases    cost/demand 1.004   expired   1186   unmet    668   RhD- unmet 166.0   anti-D   0.0   conflicts      0
 

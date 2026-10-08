@@ -96,10 +96,19 @@
       <button class="btn light" id="b-act"></button>
     </section>
   </main>
+  <dialog class="fhir" id="fhir" aria-labelledby="fhir-title">
+    <div class="fhir-head">
+      <div><div class="eyebrow">Interoperability · FHIR R5</div><h2 id="fhir-title">Facility shelf as FHIR</h2>
+        <p class="hint" id="fhir-sub"></p></div>
+      <div class="fhir-act"><button class="btn ghost" id="fhir-copy">Copy JSON</button><button class="btn" id="fhir-close">Close</button></div>
+    </div>
+    <pre id="fhir-json"></pre>
+  </dialog>
 
 </div>
 
 <script src="js/engine.js"></script>
+<script src="js/fhir.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

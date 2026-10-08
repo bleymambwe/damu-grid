@@ -52,7 +52,29 @@ def test_rh_negative_reservation_protects_rh_negative_patients():
     worse = 0
     for seed in range(1, 7):
         P = Params(seed=seed, n_nodes=6, horizon=250)
-        free = simulate_groups(P, "age", reserve_neg=False).unmet_by_group[0]
-        kept = simulate_groups(P, "age", reserve_neg=True).unmet_by_group[0]
+        free = simulate_groups(P, "age", reserve_neg=False, rule="red-cell").unmet_by_group[0]
+        kept = simulate_groups(P, "age", reserve_neg=True, rule="red-cell").unmet_by_group[0]
         worse += kept > free
     assert worse <= 1
+
+
+def test_platelet_override_is_rh_positive_abo_compatible_and_only_for_rh_negative_patients():
+    from perishnet.groups import override_order
+    from perishnet.groups import abo_compatible
+    for g in GROUPS:
+        cands = [GROUPS[k] for k in override_order(g, KENYA_SHARES)]
+        if g.endswith("+"):
+            assert cands == []
+        else:
+            assert cands and all(c.endswith("+") and abo_compatible(c, g) for c in cands)
+            assert cands[0] == g[:-1] + "+"
+
+
+def test_platelet_rule_cuts_rh_negative_shortages_and_red_cell_rule_never_overrides():
+    neg = [k for k, g in enumerate(GROUPS) if g.endswith("-")]
+    for seed in (1, 2, 3):
+        P = Params(seed=seed, n_nodes=6, horizon=200)
+        strict = simulate_groups(P, "age", rule="red-cell")
+        plt = simulate_groups(P, "age", rule="platelet")
+        assert strict.rh_overrides == 0
+        assert sum(plt.unmet_by_group[k] for k in neg) < sum(strict.unmet_by_group[k] for k in neg)
